@@ -1,0 +1,76 @@
+name:                             pansite
+version:                          0.1.0.0
+synopsis:                         Pansite: a simple web site management tool
+description:                      Please see README.md
+homepage:                         https://github.com/rcook/pansite#readme
+license:                          MIT
+license-file:                     LICENSE
+author:                           Richard Cook
+maintainer:                       rcook@rcook.org
+copyright:                        2017 Richard Cook
+category:                         Web
+build-type:                       Simple
+extra-source-files:               README.md
+cabal-version:                    >= 1.10
+
+source-repository head
+  type:                           git
+  location:                       https://github.com/rcook/pansite.git
+
+library
+  default-language:               Haskell2010
+  ghc-options:                    -Werror -fwarn-incomplete-patterns
+  hs-source-dirs:                 src
+  exposed-modules:                Pansite
+  other-modules:                  Pansite.Event
+                                , Pansite.IO
+                                , Pansite.IO.Funcs
+                                , Pansite.IO.Types
+                                , Pansite.SafeUtil
+                                , Pansite.TestServer
+                                , Pansite.TestServer.Funcs
+                                , Pansite.TestServer.Types
+  build-depends:                  base
+                                , bytestring
+                                , http-types
+                                , stm
+                                , text
+                                , wai
+                                , warp
+
+executable pansite-app
+  default-language:               Haskell2010
+  ghc-options:                    -threaded -rtsopts -with-rtsopts=-N -Werror -fwarn-incomplete-patterns
+  hs-source-dirs:                 app
+  main-is:                        Main.hs
+  other-modules:                  CommandLine
+  build-depends:                  base
+                                , bytestring
+                                , mtl
+                                , optparse-applicative
+                                , pansite
+                                , parallel
+                                , stm
+                                , text
+                                , unix
+
+test-suite pansite-doctest
+  type:                           exitcode-stdio-1.0
+  default-language:               Haskell2010
+  ghc-options:                    -threaded -rtsopts -with-rtsopts=-N -Werror -fwarn-incomplete-patterns
+  hs-source-dirs:                 doctest
+  main-is:                        Main.hs
+  build-depends:                  Glob
+                                , base
+                                , doctest
+
+test-suite pansite-spec
+  type:                           exitcode-stdio-1.0
+  default-language:               Haskell2010
+  ghc-options:                    -threaded -rtsopts -with-rtsopts=-N -Werror -fwarn-incomplete-patterns
+  hs-source-dirs:                 spec
+  main-is:                        Spec.hs
+  other-modules:                  SafeUtilSpec
+  build-depends:                  base
+                                , hspec
+                                , pansite
