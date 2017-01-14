@@ -22,7 +22,10 @@ library
   ghc-options:                    -Werror -fwarn-incomplete-patterns
   hs-source-dirs:                 src
   exposed-modules:                Pansite
-  other-modules:                  Pansite.Event
+  other-modules:                  Pansite.Config
+                                , Pansite.Config.Instances
+                                , Pansite.Config.Types
+                                , Pansite.Event
                                 , Pansite.IO
                                 , Pansite.IO.Funcs
                                 , Pansite.IO.Types
@@ -33,10 +36,12 @@ library
   build-depends:                  base
                                 , bytestring
                                 , http-types
+                                , split
                                 , stm
                                 , text
                                 , wai
                                 , warp
+                                , yaml
 
 executable pansite-app
   default-language:               Haskell2010
@@ -44,15 +49,20 @@ executable pansite-app
   hs-source-dirs:                 app
   main-is:                        Main.hs
   other-modules:                  CommandLine
+                                , Scan
   build-depends:                  base
                                 , bytestring
+                                , directory
                                 , mtl
                                 , optparse-applicative
                                 , pansite
                                 , parallel
+                                , split
                                 , stm
                                 , text
+                                , time
                                 , unix
+                                , yaml
 
 test-suite pansite-doctest
   type:                           exitcode-stdio-1.0
@@ -70,7 +80,10 @@ test-suite pansite-spec
   ghc-options:                    -threaded -rtsopts -with-rtsopts=-N -Werror -fwarn-incomplete-patterns
   hs-source-dirs:                 spec
   main-is:                        Spec.hs
-  other-modules:                  SafeUtilSpec
+  other-modules:                  ConfigSpec
+                                , SafeUtilSpec
   build-depends:                  base
+                                , bytestring
                                 , hspec
                                 , pansite
+                                , yaml

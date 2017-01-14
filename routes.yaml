@@ -1,0 +1,13 @@
+routes:
+- path: content/ctp
+  sourcePath: ctp.md
+- path: content/pcph
+  sourcePath: pcph.md
+
+inputs:
+- sourcePath: ctp.md
+  dependencies:
+  - foo.md
+  - bar.md
+  - image.png
+- sourcePath: pcph.md

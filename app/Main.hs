@@ -18,6 +18,7 @@ import           Control.Monad
 import           Data.ByteString.Lazy (ByteString)
 import           Data.Text
 import           Pansite
+import           Scan
 import           System.IO
 
 data State =
@@ -90,5 +91,7 @@ run (Options config) = do
     print state
     putStrLn $ if state == Success then "PASSED" else "FAILED"
 
+--main :: IO ()
+--main = parseOptions >>= run
 main :: IO ()
-main = parseOptions >>= run
+main = doScan
