@@ -13,6 +13,7 @@ module Scan (doScan) where
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as C8
 import           Data.Char
+import qualified Data.Map as M
 import           Data.Time
 import           Data.Yaml
 import           Pansite
@@ -36,7 +37,7 @@ readChar = bracketHandle stdin $ do
     return c
 
 showConfigInfoLoop :: ConfigInfo -> IO ()
-showConfigInfoLoop configInfo@(ConfigInfo path t routes) = do
+showConfigInfoLoop configInfo@(ConfigInfo path t _) = do
     print configInfo
     putStr "(Q)uit or (S)can: "
     hFlush stdout
@@ -51,5 +52,16 @@ showConfigInfoLoop configInfo@(ConfigInfo path t routes) = do
                 _ -> putStrLn "(Changed)" >> readConfigInfo path >>= showConfigInfoLoop
         else (putStrLn "(Quit)")
 
+--doScan :: IO ()
+--doScan = canonicalizePath "routes.yaml" >>= readConfigInfo >>= showConfigInfoLoop
+
 doScan :: IO ()
-doScan = canonicalizePath "routes.yaml" >>= readConfigInfo >>= showConfigInfoLoop
+doScan = canonicalizePath "routes.yaml" >>= readConfigInfo >>= render ["content", "ctp"]
+
+render :: [String] -> ConfigInfo -> IO ()
+render paths (ConfigInfo _ _ (Config routes _)) = do
+    let m = M.fromList (map (\(Route paths sourcePath) -> (paths, sourcePath)) routes)
+    case M.lookup paths m of
+        Just sourcePath -> putStrLn $ "sourcePath=" ++ sourcePath
+        Nothing -> error "Route not supported"
+    putStrLn "Done"

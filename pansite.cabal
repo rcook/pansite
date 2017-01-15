@@ -52,6 +52,7 @@ executable pansite-app
                                 , Scan
   build-depends:                  base
                                 , bytestring
+                                , containers
                                 , directory
                                 , mtl
                                 , optparse-applicative
