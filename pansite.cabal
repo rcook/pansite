@@ -65,6 +65,7 @@ executable pansite-app
                                 , time
                                 , unix
                                 , wai
+                                , wai-logger
                                 , warp
                                 , yaml
 

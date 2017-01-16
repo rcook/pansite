@@ -12,6 +12,7 @@ Portability : portable
 
 module Scan (doScan) where
 
+import           Control.Monad.IO.Class
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as C8
 import qualified Data.ByteString.Lazy as BL
@@ -27,6 +28,7 @@ import           Network.HTTP.Types
 import           Network.HTTP.Types.Header
 import           Network.Wai
 import           Network.Wai.Handler.Warp
+import           Network.Wai.Logger
 import           Pansite
 import           System.Directory
 import           System.IO
@@ -67,17 +69,22 @@ showConfigInfoLoop configInfo@(ConfigInfo path t _) = do
 --doScan = canonicalizePath "routes.yaml" >>= readConfigInfo >>= showConfigInfoLoop
 
 doScan :: IO ()
-doScan = canonicalizePath "routes.yaml" >>= readConfigInfo >>= blah
+doScan = withStdoutLogger $ \logger -> do
+    routesYamlPath <- canonicalizePath "routes.yaml"
+    configInfo <- readConfigInfo routesYamlPath
+    blah logger configInfo
 
-blah :: ConfigInfo -> IO ()
-blah (ConfigInfo _ _ (Config routes _)) = do
+blah :: ApacheLogger -> ConfigInfo -> IO ()
+blah logger (ConfigInfo _ _ (Config routes _)) = do
     let m = Map.fromList (map (\(Route paths sourcePath) -> (map Text.pack paths, Text.pack sourcePath)) routes)
         port = 3000
     putStrLn $ "Listening on port " ++ show port
-    run port (app m)
+    run port (app logger m)
 
-app :: Map [Text] Text -> Application
-app m req f =
+app :: ApacheLogger -> Map [Text] Text -> Application
+app logger m req f =
     case Map.lookup (pathInfo req) m of
-        Just sourcePath -> f $ responseLBS status200 [(hContentType, "text/plain")] (BL.fromStrict $ Text.encodeUtf8 sourcePath)
+        Just sourcePath -> do
+            liftIO $ logger req status200 (Just 0)
+            f $ responseLBS status200 [(hContentType, "text/plain")] (BL.fromStrict $ Text.encodeUtf8 sourcePath)
         Nothing -> f $ responseLBS status200 [(hContentType, "text/plain")] "No such route"
