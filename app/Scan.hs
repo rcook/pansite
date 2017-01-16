@@ -14,11 +14,13 @@ module Scan (doScan) where
 
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as C8
+import qualified Data.ByteString.Lazy as BL
 import           Data.Char
 import           Data.Map (Map)
 import qualified Data.Map as Map
 import           Data.Text (Text)
 import qualified Data.Text as Text
+import qualified Data.Text.Encoding as Text
 import           Data.Time
 import           Data.Yaml
 import           Network.HTTP.Types
@@ -77,5 +79,5 @@ blah (ConfigInfo _ _ (Config routes _)) = do
 app :: Map [Text] Text -> Application
 app m req f =
     case Map.lookup (pathInfo req) m of
-        Just _ -> f $ responseLBS status200 [(hContentType, "text/plain")] "Found route"
+        Just sourcePath -> f $ responseLBS status200 [(hContentType, "text/plain")] (BL.fromStrict $ Text.encodeUtf8 sourcePath)
         Nothing -> f $ responseLBS status200 [(hContentType, "text/plain")] "No such route"
