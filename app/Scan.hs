@@ -8,14 +8,23 @@ Stability   : experimental
 Portability : portable
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
+
 module Scan (doScan) where
 
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as C8
 import           Data.Char
-import qualified Data.Map as M
+import           Data.Map (Map)
+import qualified Data.Map as Map
+import           Data.Text (Text)
+import qualified Data.Text as Text
 import           Data.Time
 import           Data.Yaml
+import           Network.HTTP.Types
+import           Network.HTTP.Types.Header
+import           Network.Wai
+import           Network.Wai.Handler.Warp
 import           Pansite
 import           System.Directory
 import           System.IO
@@ -56,12 +65,17 @@ showConfigInfoLoop configInfo@(ConfigInfo path t _) = do
 --doScan = canonicalizePath "routes.yaml" >>= readConfigInfo >>= showConfigInfoLoop
 
 doScan :: IO ()
-doScan = canonicalizePath "routes.yaml" >>= readConfigInfo >>= render ["content", "ctp"]
+doScan = canonicalizePath "routes.yaml" >>= readConfigInfo >>= blah
 
-render :: [String] -> ConfigInfo -> IO ()
-render paths (ConfigInfo _ _ (Config routes _)) = do
-    let m = M.fromList (map (\(Route paths sourcePath) -> (paths, sourcePath)) routes)
-    case M.lookup paths m of
-        Just sourcePath -> putStrLn $ "sourcePath=" ++ sourcePath
-        Nothing -> error "Route not supported"
-    putStrLn "Done"
+blah :: ConfigInfo -> IO ()
+blah (ConfigInfo _ _ (Config routes _)) = do
+    let m = Map.fromList (map (\(Route paths sourcePath) -> (map Text.pack paths, Text.pack sourcePath)) routes)
+        port = 3000
+    putStrLn $ "Listening on port " ++ show port
+    run port (app m)
+
+app :: Map [Text] Text -> Application
+app m req f =
+    case Map.lookup (pathInfo req) m of
+        Just _ -> f $ responseLBS status200 [(hContentType, "text/plain")] "Found route"
+        Nothing -> f $ responseLBS status200 [(hContentType, "text/plain")] "No such route"

@@ -54,6 +54,7 @@ executable pansite-app
                                 , bytestring
                                 , containers
                                 , directory
+                                , http-types
                                 , mtl
                                 , optparse-applicative
                                 , pansite
@@ -63,6 +64,8 @@ executable pansite-app
                                 , text
                                 , time
                                 , unix
+                                , wai
+                                , warp
                                 , yaml
 
 test-suite pansite-doctest
