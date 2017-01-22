@@ -105,16 +105,15 @@ readRouteSourcePath sourcePath = do
 --doScan :: IO ()
 --doScan = canonicalizePath "_site/routes.yaml" >>= readConfigInfo >>= showConfigInfoLoop
 
-doScan :: IO ()
-doScan = withStdoutLogger $ \logger -> do
+doScan :: ServerConfig -> IO ()
+doScan config = withStdoutLogger $ \logger -> do
     routesYamlPath <- canonicalizePath $ siteDir </> routesYamlFileName
     configInfo <- readConfigInfo routesYamlPath
-    blah logger configInfo
+    doIt config logger configInfo
 
-blah :: ApacheLogger -> ConfigInfo -> IO ()
-blah logger (ConfigInfo _ _ (Config routes _)) = do
+doIt :: ServerConfig -> ApacheLogger -> ConfigInfo -> IO ()
+doIt (ServerConfig port) logger (ConfigInfo _ _ (Config routes _)) = do
     let m = Map.fromList (map (\(Route paths sourcePath) -> (map Text.pack paths, Text.pack sourcePath)) routes)
-        port = 3000
     putStrLn $ "Listening on port " ++ show port
     run port (app logger m)
 

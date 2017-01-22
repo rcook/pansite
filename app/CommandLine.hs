@@ -19,7 +19,12 @@ import           Pansite
 data Options = Options ServerConfig
 
 portArg :: Parser Port
-portArg = argument auto (metavar "PORT" <> help "port")
+portArg = option auto
+    (long "port"
+    <> short 'p'
+    <> value 3000
+    <> metavar "PORT"
+    <> help "port")
 
 serverConfigParser :: Parser ServerConfig
 serverConfigParser = ServerConfig <$> portArg
