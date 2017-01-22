@@ -1,8 +1,8 @@
 routes:
 - path: content/ctp
-  sourcePath: ctp.md
+  sourcePath: ctp.html
 - path: content/pcph
-  sourcePath: pcph.md
+  sourcePath: pcph.html
 
 inputs:
 - sourcePath: ctp.md

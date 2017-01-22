@@ -56,11 +56,13 @@ executable pansite-app
                                 , bytestring
                                 , containers
                                 , directory
+                                , filepath
                                 , http-types
                                 , mtl
                                 , optparse-applicative
                                 , pansite
                                 , parallel
+                                , process
                                 , split
                                 , stm
                                 , text

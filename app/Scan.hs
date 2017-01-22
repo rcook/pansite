@@ -31,7 +31,9 @@ import           Network.Wai.Handler.Warp
 import           Network.Wai.Logger
 import           Pansite
 import           System.Directory
+import           System.FilePath
 import           System.IO
+import           System.Process
 
 data ConfigInfo = ConfigInfo FilePath UTCTime Config deriving Show
 
@@ -65,12 +67,28 @@ showConfigInfoLoop configInfo@(ConfigInfo path t _) = do
                 _ -> putStrLn "(Changed)" >> readConfigInfo path >>= showConfigInfoLoop
         else (putStrLn "(Quit)")
 
+siteRootDir :: FilePath
+siteRootDir = "_site"
+
+routesYamlFileName :: FilePath
+routesYamlFileName = "routes.yaml"
+
+rebuildRouteSourcePath :: FilePath -> IO ()
+rebuildRouteSourcePath sourcePath = callProcess "make" ["-C", siteRootDir, sourcePath]
+
+readRouteSourcePath :: FilePath -> IO String
+readRouteSourcePath sourcePath = do
+    rebuildRouteSourcePath sourcePath
+    let outputPath = siteRootDir </> sourcePath
+    putStrLn $ "Try to read " ++ outputPath
+    readFile outputPath
+
 --doScan :: IO ()
 --doScan = canonicalizePath "_site/routes.yaml" >>= readConfigInfo >>= showConfigInfoLoop
 
 doScan :: IO ()
 doScan = withStdoutLogger $ \logger -> do
-    routesYamlPath <- canonicalizePath "_site/routes.yaml"
+    routesYamlPath <- canonicalizePath $ siteRootDir </> routesYamlFileName
     configInfo <- readConfigInfo routesYamlPath
     blah logger configInfo
 
@@ -86,7 +104,11 @@ app logger m req f =
     case Map.lookup (pathInfo req) m of
         Just sourcePath -> do
             liftIO $ logger req status200 (Just 0)
-            f $ responseLBS status200 [(hContentType, "text/plain")] (BL.fromStrict $ Text.encodeUtf8 sourcePath)
+
+            -- TODO: Fix all text re-encoding etc.
+            content <- Text.pack <$> readRouteSourcePath (Text.unpack sourcePath)
+
+            f $ responseLBS status200 [(hContentType, "text/plain")] (BL.fromStrict $ Text.encodeUtf8 content)
         Nothing -> f $ responseLBS status200 [(hContentType, "text/plain")] "No such route"
 
 {-
