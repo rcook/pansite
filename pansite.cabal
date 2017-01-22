@@ -26,7 +26,6 @@ library
                                 , Pansite.Config.Instances
                                 , Pansite.Config.Types
                                 , Pansite.Event
-                                , Pansite.Graph
                                 , Pansite.IO
                                 , Pansite.IO.Funcs
                                 , Pansite.IO.Types
