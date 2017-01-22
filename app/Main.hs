@@ -14,4 +14,5 @@ import           CommandLine
 import           Scan
 
 main :: IO ()
-main = parseOptions >>= \(Options config) -> doScan config
+main = parseOptions >>=
+    \(Options serverConfig) -> doScan serverConfig

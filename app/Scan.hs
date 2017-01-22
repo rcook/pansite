@@ -56,33 +56,32 @@ rebuildRouteSourcePath siteConfig sourcePath = do
         ]
     return outputPath
 
-readRouteSourcePath :: FilePath -> IO String
-readRouteSourcePath sourcePath = do
-    siteInfo <- mkSiteConfig "_site" "_output"
-    outputPath <- rebuildRouteSourcePath siteInfo sourcePath
+readRouteSourcePath :: SiteConfig -> FilePath -> IO String
+readRouteSourcePath siteConfig sourcePath = do
+    outputPath <- rebuildRouteSourcePath siteConfig sourcePath
     putStrLn $ "Try to read " ++ outputPath
     readFile outputPath
 
 doScan :: ServerConfig -> IO ()
-doScan config = withStdoutLogger $ \logger -> do
-    routesYamlPath <- canonicalizePath $ "_site" </> "routes.yaml"
-    configInfo <- readConfigInfo routesYamlPath
-    doIt config logger configInfo
+doScan serverConfig = withStdoutLogger $ \logger -> do
+    siteConfig <- mkSiteConfig "_site" "_output"
+    configInfo <- readConfigInfo (routesYamlPath siteConfig)
+    doIt serverConfig siteConfig logger configInfo
 
-doIt :: ServerConfig -> ApacheLogger -> ConfigInfo -> IO ()
-doIt (ServerConfig port) logger (ConfigInfo _ _ (Config routes _)) = do
+doIt :: ServerConfig -> SiteConfig -> ApacheLogger -> ConfigInfo -> IO ()
+doIt (ServerConfig port) siteConfig logger (ConfigInfo _ _ (Config routes _)) = do
     let m = Map.fromList (map (\(Route paths sourcePath) -> (map Text.pack paths, Text.pack sourcePath)) routes)
     putStrLn $ "Listening on port " ++ show port
-    run port (app logger m)
+    run port (app siteConfig logger m)
 
-app :: ApacheLogger -> Map [Text] Text -> Application
-app logger m req f =
+app :: SiteConfig -> ApacheLogger -> Map [Text] Text -> Application
+app siteConfig logger m req f =
     case Map.lookup (pathInfo req) m of
         Just sourcePath -> do
             liftIO $ logger req status200 (Just 0)
 
             -- TODO: Fix all text re-encoding etc.
-            content <- Text.pack <$> readRouteSourcePath (Text.unpack sourcePath)
+            content <- Text.pack <$> readRouteSourcePath siteConfig (Text.unpack sourcePath)
 
             f $ responseLBS status200 [(hContentType, "text/html")] (BL.fromStrict $ Text.encodeUtf8 content)
         Nothing -> f $ responseLBS status200 [(hContentType, "text/plain")] "No such route"
