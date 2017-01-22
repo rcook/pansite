@@ -66,11 +66,11 @@ showConfigInfoLoop configInfo@(ConfigInfo path t _) = do
         else (putStrLn "(Quit)")
 
 --doScan :: IO ()
---doScan = canonicalizePath "routes.yaml" >>= readConfigInfo >>= showConfigInfoLoop
+--doScan = canonicalizePath "_site/routes.yaml" >>= readConfigInfo >>= showConfigInfoLoop
 
 doScan :: IO ()
 doScan = withStdoutLogger $ \logger -> do
-    routesYamlPath <- canonicalizePath "routes.yaml"
+    routesYamlPath <- canonicalizePath "_site/routes.yaml"
     configInfo <- readConfigInfo routesYamlPath
     blah logger configInfo
 
