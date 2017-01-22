@@ -51,6 +51,7 @@ executable pansite-app
   main-is:                        Main.hs
   other-modules:                  CommandLine
                                 , Scan
+                                , SiteConfig
   build-depends:                  base
                                 , bytestring
                                 , containers

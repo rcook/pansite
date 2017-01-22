@@ -30,20 +30,13 @@ import           Network.Wai
 import           Network.Wai.Handler.Warp
 import           Network.Wai.Logger
 import           Pansite
+import           SiteConfig
 import           System.Directory
 import           System.FilePath
 import           System.IO
 import           System.Process
 
-data SiteInfo = SiteInfo FilePath FilePath
-
 data ConfigInfo = ConfigInfo FilePath UTCTime Config deriving Show
-
-mkSiteInfo :: FilePath -> FilePath -> IO SiteInfo
-mkSiteInfo siteDir outputDir = do
-    canonicalSiteDir <- canonicalizePath siteDir
-    canonicalOutputDir <- canonicalizePath outputDir
-    return $ SiteInfo canonicalSiteDir canonicalOutputDir
 
 readConfigInfo :: FilePath -> IO ConfigInfo
 readConfigInfo path = do
@@ -52,36 +45,27 @@ readConfigInfo path = do
     let Just config = decode s -- TODO: Irrefutable pattern
     return $ ConfigInfo path t config
 
-siteDir :: FilePath
-siteDir = "_site"
-
-outputDir :: FilePath
-outputDir = "_output"
-
-routesYamlFileName :: FilePath
-routesYamlFileName = "routes.yaml"
-
-rebuildRouteSourcePath :: SiteInfo -> FilePath -> IO FilePath
-rebuildRouteSourcePath (SiteInfo siteDir cacheDir) sourcePath = do
-    let outputPath = cacheDir </> sourcePath
+rebuildRouteSourcePath :: SiteConfig -> FilePath -> IO FilePath
+rebuildRouteSourcePath siteConfig sourcePath = do
+    let outputPath = (outputDir siteConfig) </> sourcePath
     callProcess "make"
-        [ "OUTPUT_DIR=" ++ cacheDir
+        [ "OUTPUT_DIR=" ++ (outputDir siteConfig)
         , "-C"
-        , siteDir
+        , siteDir siteConfig
         , outputPath
         ]
     return outputPath
 
 readRouteSourcePath :: FilePath -> IO String
 readRouteSourcePath sourcePath = do
-    siteInfo <- mkSiteInfo siteDir outputDir
+    siteInfo <- mkSiteConfig "_site" "_output"
     outputPath <- rebuildRouteSourcePath siteInfo sourcePath
     putStrLn $ "Try to read " ++ outputPath
     readFile outputPath
 
 doScan :: ServerConfig -> IO ()
 doScan config = withStdoutLogger $ \logger -> do
-    routesYamlPath <- canonicalizePath $ siteDir </> routesYamlFileName
+    routesYamlPath <- canonicalizePath $ "_site" </> "routes.yaml"
     configInfo <- readConfigInfo routesYamlPath
     doIt config logger configInfo
 
