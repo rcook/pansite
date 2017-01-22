@@ -127,7 +127,7 @@ app logger m req f =
             -- TODO: Fix all text re-encoding etc.
             content <- Text.pack <$> readRouteSourcePath (Text.unpack sourcePath)
 
-            f $ responseLBS status200 [(hContentType, "text/plain")] (BL.fromStrict $ Text.encodeUtf8 content)
+            f $ responseLBS status200 [(hContentType, "text/html")] (BL.fromStrict $ Text.encodeUtf8 content)
         Nothing -> f $ responseLBS status200 [(hContentType, "text/plain")] "No such route"
 
 {-

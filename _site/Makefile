@@ -5,5 +5,5 @@ endif
 .PHONY: all
 all: ${OUTPUT_DIR}/ctp.html ${OUTPUT_DIR}/pcph.html
 
-${OUTPUT_DIR}/%.html: %.txt
-	cp $< $@
+${OUTPUT_DIR}/%.html: %.md
+	pandoc -o $@ $<
