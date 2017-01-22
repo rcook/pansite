@@ -50,7 +50,6 @@ executable pansite-app
   hs-source-dirs:                 app
   main-is:                        Main.hs
   other-modules:                  CommandLine
-                                , Scan
                                 , SiteConfig
   build-depends:                  base
                                 , bytestring
