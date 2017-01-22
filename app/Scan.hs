@@ -35,7 +35,15 @@ import           System.FilePath
 import           System.IO
 import           System.Process
 
+data SiteInfo = SiteInfo FilePath FilePath
+
 data ConfigInfo = ConfigInfo FilePath UTCTime Config deriving Show
+
+mkSiteInfo :: FilePath -> FilePath -> IO SiteInfo
+mkSiteInfo siteDir outputDir = do
+    canonicalSiteDir <- canonicalizePath siteDir
+    canonicalOutputDir <- canonicalizePath outputDir
+    return $ SiteInfo canonicalSiteDir canonicalOutputDir
 
 readConfigInfo :: FilePath -> IO ConfigInfo
 readConfigInfo path = do
@@ -67,19 +75,30 @@ showConfigInfoLoop configInfo@(ConfigInfo path t _) = do
                 _ -> putStrLn "(Changed)" >> readConfigInfo path >>= showConfigInfoLoop
         else (putStrLn "(Quit)")
 
-siteRootDir :: FilePath
-siteRootDir = "_site"
+siteDir :: FilePath
+siteDir = "_site"
+
+outputDir :: FilePath
+outputDir = "_output"
 
 routesYamlFileName :: FilePath
 routesYamlFileName = "routes.yaml"
 
-rebuildRouteSourcePath :: FilePath -> IO ()
-rebuildRouteSourcePath sourcePath = callProcess "make" ["-C", siteRootDir, sourcePath]
+rebuildRouteSourcePath :: SiteInfo -> FilePath -> IO FilePath
+rebuildRouteSourcePath (SiteInfo siteDir cacheDir) sourcePath = do
+    let outputPath = cacheDir </> sourcePath
+    callProcess "make"
+        [ "OUTPUT_DIR=" ++ cacheDir
+        , "-C"
+        , siteDir
+        , outputPath
+        ]
+    return outputPath
 
 readRouteSourcePath :: FilePath -> IO String
 readRouteSourcePath sourcePath = do
-    rebuildRouteSourcePath sourcePath
-    let outputPath = siteRootDir </> sourcePath
+    siteInfo <- mkSiteInfo siteDir outputDir
+    outputPath <- rebuildRouteSourcePath siteInfo sourcePath
     putStrLn $ "Try to read " ++ outputPath
     readFile outputPath
 
@@ -88,7 +107,7 @@ readRouteSourcePath sourcePath = do
 
 doScan :: IO ()
 doScan = withStdoutLogger $ \logger -> do
-    routesYamlPath <- canonicalizePath $ siteRootDir </> routesYamlFileName
+    routesYamlPath <- canonicalizePath $ siteDir </> routesYamlFileName
     configInfo <- readConfigInfo routesYamlPath
     blah logger configInfo
 
