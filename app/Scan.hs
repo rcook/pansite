@@ -88,3 +88,28 @@ app logger m req f =
             liftIO $ logger req status200 (Just 0)
             f $ responseLBS status200 [(hContentType, "text/plain")] (BL.fromStrict $ Text.encodeUtf8 sourcePath)
         Nothing -> f $ responseLBS status200 [(hContentType, "text/plain")] "No such route"
+
+{-
+render :: [String] -> ConfigInfo -> IO ()
+render paths (ConfigInfo _ _ (Config routes _)) = do
+    let m = M.fromList (map (\(Route paths sourcePath) -> (paths, sourcePath)) routes)
+    case M.lookup paths m of
+        Just sourcePath -> putStrLn $ "sourcePath=" ++ sourcePath
+        Nothing -> error "Route not supported"
+    putStrLn "Done"
+-}
+
+{-
+doScan :: IO ()
+doScan = do
+    let g = mkGraph
+                [ Edge "5" "2"
+                , Edge "5" "0"
+                , Edge "4" "0"
+                , Edge "4" "1"
+                , Edge "2" "3"
+                , Edge "3" "1"
+                ]
+    print g
+    print $ topoSort g
+-}

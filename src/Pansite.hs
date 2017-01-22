@@ -11,6 +11,7 @@ Portability : portable
 module Pansite
     ( module Pansite.Config
     , module Pansite.Event
+    , module Pansite.Graph
     , module Pansite.IO
     , module Pansite.SafeUtil
     , module Pansite.TestServer
@@ -18,6 +19,7 @@ module Pansite
 
 import Pansite.Config
 import Pansite.Event
+import Pansite.Graph
 import Pansite.IO
 import Pansite.SafeUtil
 import Pansite.TestServer
