@@ -52,29 +52,6 @@ readConfigInfo path = do
     let Just config = decode s -- TODO: Irrefutable pattern
     return $ ConfigInfo path t config
 
-readChar :: IO Char
-readChar = bracketHandle stdin $ do
-    hSetBuffering stdin NoBuffering
-    hSetEcho stdin False
-    c <- hGetChar stdin
-    return c
-
-showConfigInfoLoop :: ConfigInfo -> IO ()
-showConfigInfoLoop configInfo@(ConfigInfo path t _) = do
-    print configInfo
-    putStr "(Q)uit or (S)can: "
-    hFlush stdout
-    c <- toUpper <$> readChar
-    putStrLn ""
-    if c == 'S'
-        then do
-            putStrLn "(Scan)"
-            t' <- getModificationTime path
-            case t' `compare` t of
-                EQ -> putStrLn "(Unchanged)" >> showConfigInfoLoop configInfo
-                _ -> putStrLn "(Changed)" >> readConfigInfo path >>= showConfigInfoLoop
-        else (putStrLn "(Quit)")
-
 siteDir :: FilePath
 siteDir = "_site"
 
@@ -102,9 +79,6 @@ readRouteSourcePath sourcePath = do
     putStrLn $ "Try to read " ++ outputPath
     readFile outputPath
 
---doScan :: IO ()
---doScan = canonicalizePath "_site/routes.yaml" >>= readConfigInfo >>= showConfigInfoLoop
-
 doScan :: ServerConfig -> IO ()
 doScan config = withStdoutLogger $ \logger -> do
     routesYamlPath <- canonicalizePath $ siteDir </> routesYamlFileName
@@ -128,28 +102,3 @@ app logger m req f =
 
             f $ responseLBS status200 [(hContentType, "text/html")] (BL.fromStrict $ Text.encodeUtf8 content)
         Nothing -> f $ responseLBS status200 [(hContentType, "text/plain")] "No such route"
-
-{-
-render :: [String] -> ConfigInfo -> IO ()
-render paths (ConfigInfo _ _ (Config routes _)) = do
-    let m = M.fromList (map (\(Route paths sourcePath) -> (paths, sourcePath)) routes)
-    case M.lookup paths m of
-        Just sourcePath -> putStrLn $ "sourcePath=" ++ sourcePath
-        Nothing -> error "Route not supported"
-    putStrLn "Done"
--}
-
-{-
-doScan :: IO ()
-doScan = do
-    let g = mkGraph
-                [ Edge "5" "2"
-                , Edge "5" "0"
-                , Edge "4" "0"
-                , Edge "4" "1"
-                , Edge "2" "3"
-                , Edge "3" "1"
-                ]
-    print g
-    print $ topoSort g
--}
