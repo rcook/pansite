@@ -2,7 +2,7 @@
 
 ## Development
 
-This project uses [Stack][stack].
+This project uses [Stack][stack]
 
 ## Licence
 
