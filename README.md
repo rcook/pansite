@@ -28,7 +28,23 @@ The ultimate goal is to replace the GNU Make dependency and, instead, use [Shake
 
 I expect that I will also directly link to the [Pandoc][pandoc-hackage] libraries instead of having Shake shell out to it (which is what the [`Makefile`][makefile-example] currently does).
 
-That's it.
+## How to run it
+
+Build it:
+
+```bash
+stack build
+```
+
+Run the example site:
+
+```bash
+stack exec -- pansite-app --port 3000
+```
+
+In your web browser, navigate to a route defined in `routes.yaml`, e.g. http://localhost:3000/content/ctp.
+
+Note that you'll need to have the `pandoc` executable on your system search path for the time being otherwise Pansite will fail at runtime. Once we embed Pandoc into the `pansite-app` executable directly, this will no longer be a requirement.
 
 ## Licence
 
