@@ -12,6 +12,7 @@ Portability : portable
 
 module Main (main) where
 
+import           Build
 import           CommandLine
 import           Control.Monad.IO.Class
 import qualified Data.ByteString.Char8 as C8
@@ -84,6 +85,9 @@ app siteConfig logger m req f =
             f $ responseLBS status200 [(hContentType, "text/html")] (BL.fromStrict $ Text.encodeUtf8 content)
         Nothing -> f $ responseLBS status200 [(hContentType, "text/plain")] "No such route"
 
+--main :: IO ()
+--main = parseOptions >>=
+--    \(Options serverConfig) -> doScan serverConfig
+
 main :: IO ()
-main = parseOptions >>=
-    \(Options serverConfig) -> doScan serverConfig
+main = build "_site" "_output"

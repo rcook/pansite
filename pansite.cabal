@@ -49,7 +49,8 @@ executable pansite-app
   ghc-options:                    -threaded -rtsopts -with-rtsopts=-N -Werror -fwarn-incomplete-patterns
   hs-source-dirs:                 app
   main-is:                        Main.hs
-  other-modules:                  CommandLine
+  other-modules:                  Build
+                                , CommandLine
                                 , SiteConfig
   build-depends:                  base
                                 , bytestring
@@ -60,6 +61,7 @@ executable pansite-app
                                 , optparse-applicative
                                 , pansite
                                 , process
+                                , shake
                                 , text
                                 , time
                                 , wai
