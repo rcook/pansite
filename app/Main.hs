@@ -93,5 +93,8 @@ app siteConfig logger m req f =
 main :: IO ()
 main = do
     let siteDir = "_site"
+        outputDir = "_output"
+        target = outputDir </> "ctp.html"
+
     ConfigInfo _ _ config <- readConfigInfo (siteDir </> "routes.yaml")
-    build config siteDir "_output"
+    build config target siteDir "_output"
