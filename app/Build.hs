@@ -1,13 +1,19 @@
 module Build (build) where
 
+import           Control.Monad
 import           Development.Shake
 import           Development.Shake.FilePath
 import           Pansite
 
+runBuildTool :: BuildTool -> FilePath -> [FilePath] -> Action ()
+runBuildTool Pandoc outputPath inputPaths = cmd "pandoc -o" [outputPath] inputPaths
+
 build :: Config -> FilePath -> FilePath -> FilePath -> IO ()
-build _ target siteDir outputDir = shake shakeOptions { shakeFiles = outputDir } $ do
+build (Config _ targets) target siteDir outputDir = shake shakeOptions { shakeFiles = outputDir } $ do
     want [target]
-    outputDir <//> "*.html" %> \out -> do
-        let md = siteDir </> (dropDirectory1 $ out -<.> "md")
-        need [md]
-        cmd "pandoc -o" [out] md
+
+    forM_ targets $ \(Target path buildTool dependencies) -> do
+        outputDir </> path %> \outputPath -> do
+            let dependencyPaths = (siteDir </>) <$> dependencies
+            need dependencyPaths
+            runBuildTool buildTool outputPath dependencyPaths
