@@ -1,13 +1,15 @@
 routes:
 - path: content/ctp
-  sourcePath: ctp.html
+  target: ctp.html
 - path: content/pcph
-  sourcePath: pcph.html
+  target: pcph.html
 
-inputs:
-- sourcePath: ctp.md
+targets:
+- path: ctp.html
+  build-tool: pandoc
   dependencies:
-  - foo.md
-  - bar.md
-  - image.png
-- sourcePath: pcph.md
+  - ctp.md
+- path: pcph.html
+  build-tool: pandoc
+  dependencies:
+  - pcph.md

@@ -9,11 +9,13 @@ Portability : portable
 -}
 
 module Pansite.Config.Types
-    ( Config (..)
-    , Input (..)
+    ( BuildTool (..)
+    , Config (..)
     , Route (..)
+    , Target (..)
     ) where
 
-data Config = Config [Route] [Input] deriving Show
+data BuildTool = Pandoc deriving Show
+data Config = Config [Route] [Target] deriving Show
 data Route = Route [String] FilePath deriving Show
-data Input = Input FilePath [FilePath] deriving Show
+data Target = Target FilePath BuildTool [FilePath] deriving Show

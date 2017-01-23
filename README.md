@@ -15,12 +15,22 @@ Currently Pansite is a trivial web app built on top of [Warp][warp-hackage]. Rou
 ```yaml
 routes:
 - path: content/page0
-  sourcePath: page0.html
+  target: page0.html
 - path: content/page1
-  sourcePath: page1.html
+  target: page1.html
+
+targets:
+- path: page0.html
+  build-tool: pandoc
+  dependencies:
+  - page0.md
+- path: page1.html
+  build-tool: pandoc
+  dependencies:
+  - page1.md
 ```
 
-Each `path` entry defines a route that the web app will respond to. The `sourcePath` key defines the cached content file to return in response to this route.
+Each `path` entry defines a route that the web app will respond to. The `target` key defines the cached content file to return in response to this route.
 
 The cached content files are currently built by shelling out to the [make][gnu-make] command. Thus, the app defines how to build the cached content files using a `Makefile` placed alongside the `routes.yaml` file. There is a silly test site defined under `_site`, specifically in [`_site/routes.yaml`][routes-example] and [`_site/Makefile`][makefile-example] that demonstrates this idea.
 

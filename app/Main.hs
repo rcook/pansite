@@ -89,5 +89,9 @@ app siteConfig logger m req f =
 --main = parseOptions >>=
 --    \(Options serverConfig) -> doScan serverConfig
 
+
 main :: IO ()
-main = build "_site" "_output"
+main = do
+    let siteDir = "_site"
+    ConfigInfo _ _ config <- readConfigInfo (siteDir </> "routes.yaml")
+    build config siteDir "_output"

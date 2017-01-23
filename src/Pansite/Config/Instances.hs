@@ -19,56 +19,68 @@ import           Data.Text (Text (..))
 import           Data.Yaml
 import           Pansite.Config.Types
 
+instance FromJSON BuildTool where
+    parseJSON "pandoc" = pure Pandoc
+    parseJSON _ = empty
+
+instance ToJSON BuildTool where
+    toJSON Pandoc = "pandoc"
+
 instance FromJSON Config where
     parseJSON (Object v) = Config
         <$> v .: routesKey
-        <*> v .: inputsKey
+        <*> v .:? targetsKey .!= []
     parseJSON _ = empty
 
 instance ToJSON Config where
-    toJSON (Config routes inputs) = object
+    toJSON (Config routes targets) = object
         [ routesKey .= routes
-        , inputsKey .= inputs
+        , targetsKey .= targets
         ]
 
 instance FromJSON Route where
     parseJSON (Object v) = Route
         <$> parseRoutePath <$> (v .: pathKey)
-        <*> v .: sourcePathKey
+        <*> v .: targetKey
     parseJSON _ = empty
 
 instance ToJSON Route where
-    toJSON (Route paths sourcePath) = object
+    toJSON (Route paths target) = object
         [ pathKey .= toRoutePath paths
-        , sourcePathKey .= sourcePath
+        , targetKey .= target
         ]
 
-instance FromJSON Input where
-    parseJSON (Object v) = Input
-        <$> v .: sourcePathKey
+instance FromJSON Target where
+    parseJSON (Object v) = Target
+        <$> v .: pathKey
+        <*> v .: buildToolKey
         <*> v .:? dependenciesKey .!= []
     parseJSON _ = empty
 
-instance ToJSON Input where
-    toJSON (Input sourcePath dependencies) = object
-        [ sourcePathKey .= sourcePath
+instance ToJSON Target where
+    toJSON (Target path buildTool dependencies) = object
+        [ pathKey .= path
+        , buildToolKey .= buildTool
         , dependenciesKey .= dependencies
         ]
 
-routesKey :: Text
-routesKey = "routes"
+buildToolKey :: Text
+buildToolKey = "build-tool"
 
-inputsKey :: Text
-inputsKey = "inputs"
+dependenciesKey :: Text
+dependenciesKey = "dependencies"
 
 pathKey :: Text
 pathKey = "path"
 
-sourcePathKey :: Text
-sourcePathKey = "sourcePath"
+routesKey :: Text
+routesKey = "routes"
 
-dependenciesKey :: Text
-dependenciesKey = "dependencies"
+targetKey :: Text
+targetKey = "target"
+
+targetsKey :: Text
+targetsKey = "targets"
 
 parseRoutePath :: String -> [String]
 parseRoutePath = splitOn "/"
