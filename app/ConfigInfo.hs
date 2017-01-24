@@ -1,6 +1,6 @@
 {-|
-Module      : SiteConfig
-Description : Site configuration for Pansite app
+Module      : ConfigInfo
+Description : Configuration info for Pansite app
 Copyright   : (C) Richard Cook, 2017
 Licence     : MIT
 Maintainer  : rcook@rcook.org
@@ -8,7 +8,7 @@ Stability   : experimental
 Portability : portable
 -}
 
-module SiteConfig
+module ConfigInfo
     ( ConfigInfo (..)
     , appDir
     , outputDir

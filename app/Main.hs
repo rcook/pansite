@@ -14,6 +14,7 @@ module Main (main) where
 
 import           Build
 import           CommandLine
+import           ConfigInfo
 import           Control.Monad.IO.Class
 import qualified Data.ByteString.Lazy as BL
 import           Data.Map (Map)
@@ -27,7 +28,6 @@ import           Network.Wai
 import           Network.Wai.Handler.Warp
 import           Network.Wai.Logger
 import           Pansite
-import           SiteConfig
 import           System.Directory
 import           System.FilePath
 import           System.Process

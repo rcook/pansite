@@ -1,6 +1,6 @@
 module Build (build) where
 
-import           SiteConfig
+import           ConfigInfo
 import           Control.Monad
 import           Development.Shake
 import           Development.Shake.FilePath
