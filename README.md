@@ -32,7 +32,7 @@ targets:
 
 Each `path` entry defines a route that the web app will respond to. The `target` key defines the cached content file to return in response to this route.
 
-The cached content files are currently built using [Shake][shake] using rules generated from the `routes.yaml` file. Thus, the app itself defines how to build the cached content files using a simple declarative format. There is a silly test site defined under `_site`, specifically in [`_site/routes.yaml`][routes-example] that demonstrates the idea. I do not want to allow the app's content itself to provide a Shake build script since I do not want to allow the user-provided content to run arbitrary commands on my server. Instead, the simple declarative rules in `routes.yaml` constrain what the build system can do while still keeping it useful.
+The cached content files are currently built using [Shake][shake] using rules generated from the `routes.yaml` file. Thus, the app itself defines how to build the cached content files using a simple declarative format. There is a silly test site defined under `_app`, specifically in [`_app/routes.yaml`][routes-example] that demonstrates the idea. I do not want to allow the app's content itself to provide a Shake build script since I do not want to allow the user-provided content to run arbitrary commands on my server. Instead, the simple declarative rules in `routes.yaml` constrain what the build system can do while still keeping it useful.
 
 I expect that I will also directly link to the [Pandoc][pandoc-hackage] libraries instead of having Shake shell out to the `pandoc` executable.
 
@@ -63,7 +63,7 @@ Copyright &copy; 2017 Richard Cook
 [gnu-make]: https://www.gnu.org/software/make/
 [licence]: LICENSE
 [pandoc-hackage]: https://hackage.haskell.org/package/pandoc
-[routes-example]: _site/routes.yaml
+[routes-example]: _app/routes.yaml
 [shake]: http://shakebuild.com/
 [stack]: https://haskellstack.org/
 [warp-hackage]: https://hackage.haskell.org/package/warp

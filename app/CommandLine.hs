@@ -26,13 +26,13 @@ portArg = option auto
     <> metavar "PORT"
     <> help "port")
 
-siteDirParser :: Parser FilePath
-siteDirParser = strOption
-    (long "site-dir"
-    <> short 's'
-    <> value "_site"
-    <> metavar "SITEDIR"
-    <> help "site directory")
+appDirParser :: Parser FilePath
+appDirParser = strOption
+    (long "app-dir"
+    <> short 'a'
+    <> value "_app"
+    <> metavar "APPDIR"
+    <> help "application directory")
 
 outputDirParser :: Parser FilePath
 outputDirParser = strOption
@@ -46,7 +46,7 @@ serverConfigParser :: Parser ServerConfig
 serverConfigParser = ServerConfig <$> portArg
 
 optionsParser :: Parser Options
-optionsParser = Options <$> serverConfigParser <*> siteDirParser <*> outputDirParser
+optionsParser = Options <$> serverConfigParser <*> appDirParser <*> outputDirParser
 
 parseOptions :: IO Options
 parseOptions = execParser optionsInfo

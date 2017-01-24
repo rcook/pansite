@@ -67,8 +67,7 @@ buildTarget appConfig siteConfig target = do
     return targetPath
 
 main :: IO ()
-main = parseOptions >>= \(Options serverConfig siteDir outputDir) -> withStdoutLogger $ \logger -> do
-    -- TODO: Move _site and _output into command-line options parser
-    siteConfig <- mkSiteConfig siteDir outputDir
+main = parseOptions >>= \(Options serverConfig appDir outputDir) -> withStdoutLogger $ \logger -> do
+    siteConfig <- mkSiteConfig appDir outputDir
     appConfigInfo <- readAppConfigInfo (routesYamlPath siteConfig)
     runApp serverConfig siteConfig logger appConfigInfo
