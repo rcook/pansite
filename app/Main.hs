@@ -45,8 +45,8 @@ readConfigInfo path = do
     let Just config = decode s -- TODO: Irrefutable pattern
     return $ ConfigInfo path t config
 
-rebuildRouteSourcePath :: Config -> SiteConfig -> FilePath -> IO FilePath
-rebuildRouteSourcePath config siteConfig target = do
+buildTarget :: Config -> SiteConfig -> FilePath -> IO FilePath
+buildTarget config siteConfig target = do
     -- TODO: Remove some of the redundancy from here
     -- TODO: Do not require that we pass outputDir' </> target as the target to build
     let siteDir' = siteDir siteConfig
@@ -54,12 +54,6 @@ rebuildRouteSourcePath config siteConfig target = do
         targetPath = outputDir' </> target
     build config targetPath siteDir' outputDir'
     return targetPath
-
-readRouteSourcePath :: Config -> SiteConfig -> FilePath -> IO String
-readRouteSourcePath config siteConfig sourcePath = do
-    outputPath <- rebuildRouteSourcePath config siteConfig sourcePath
-    putStrLn $ "Try to read " ++ outputPath
-    readFile outputPath
 
 doScan :: ServerConfig -> IO ()
 doScan serverConfig = withStdoutLogger $ \logger -> do
@@ -79,8 +73,14 @@ app config siteConfig logger m req f =
         Just sourcePath -> do
             liftIO $ logger req status200 (Just 0)
 
-            -- TODO: Fix all text re-encoding etc.
-            content <- Text.pack <$> readRouteSourcePath config siteConfig (Text.unpack sourcePath)
+            -- TODO: Eliminate this re-encoding
+            let sourcePath' = Text.unpack sourcePath
+
+            targetOutputPath <- buildTarget config siteConfig sourcePath'
+            putStrLn $ "Read from " ++ targetOutputPath
+
+            -- TODO: Eliminate this re-encoding
+            content <- Text.pack <$> readFile targetOutputPath
 
             f $ responseLBS status200 [(hContentType, "text/html")] (BL.fromStrict $ Text.encodeUtf8 content)
         Nothing -> f $ responseLBS status200 [(hContentType, "text/plain")] "No such route"
