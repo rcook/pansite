@@ -9,15 +9,24 @@ Portability : portable
 -}
 
 module SiteConfig
-    ( SiteConfig
+    ( AppConfigInfo (..)
+    , SiteConfig
     , mkSiteConfig
     , outputDir
+    , readAppConfigInfo
     , routesYamlPath
     , siteDir
     ) where
 
+import qualified Data.ByteString.Char8 as C8
+import           Data.Time
+import           Data.Yaml
+import           Pansite
 import           System.Directory
 import           System.FilePath
+
+-- TODO: Use UTCTime field to determine if shakeVersion should be incremented
+data AppConfigInfo = AppConfigInfo FilePath UTCTime AppConfig deriving Show
 
 data SiteConfig = SiteConfig FilePath FilePath FilePath
 
@@ -36,3 +45,10 @@ routesYamlPath (SiteConfig _ p _) = p
 
 outputDir :: SiteConfig -> FilePath
 outputDir (SiteConfig _ _ p) = p
+
+readAppConfigInfo :: FilePath -> IO AppConfigInfo
+readAppConfigInfo path = do
+    t <- getModificationTime path
+    s <- C8.readFile path
+    let Just c = decode s -- TODO: Irrefutable pattern
+    return $ AppConfigInfo path t c

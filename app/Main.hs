@@ -15,15 +15,12 @@ module Main (main) where
 import           Build
 import           CommandLine
 import           Control.Monad.IO.Class
-import qualified Data.ByteString.Char8 as C8
 import qualified Data.ByteString.Lazy as BL
 import           Data.Map (Map)
 import qualified Data.Map as Map
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
-import           Data.Time
-import           Data.Yaml
 import           Network.HTTP.Types
 import           Network.HTTP.Types.Header
 import           Network.Wai
@@ -34,16 +31,6 @@ import           SiteConfig
 import           System.Directory
 import           System.FilePath
 import           System.Process
-
--- TODO: Use UTCTime field to determine if shakeVersion should be incremented
-data AppConfigInfo = AppConfigInfo FilePath UTCTime AppConfig deriving Show
-
-readAppConfigInfo :: FilePath -> IO AppConfigInfo
-readAppConfigInfo path = do
-    t <- getModificationTime path
-    s <- C8.readFile path
-    let Just c = decode s -- TODO: Irrefutable pattern
-    return $ AppConfigInfo path t c
 
 buildTarget :: AppConfig -> SiteConfig -> FilePath -> IO FilePath
 buildTarget appConfig siteConfig target = do
