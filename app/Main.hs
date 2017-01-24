@@ -36,6 +36,7 @@ import           System.FilePath
 import           System.Process
 
 -- TODO: Rename Config to AppConfig or similar to distinguish it from the other configuration data types
+-- TODO: Use UTCTime field to determine if shakeVersion should be incremented
 data ConfigInfo = ConfigInfo FilePath UTCTime Config deriving Show
 
 readConfigInfo :: FilePath -> IO ConfigInfo
