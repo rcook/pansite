@@ -1,6 +1,6 @@
 {-|
 Module      : Pansite.Config.Instances
-Description : Configuration type class instances for Pansite
+Description : Application configuration type class instances for Pansite
 Copyright   : (C) Richard Cook, 2017
 Licence     : MIT
 Maintainer  : rcook@rcook.org
@@ -10,14 +10,26 @@ Portability : portable
 
 {-# LANGUAGE OverloadedStrings #-}
 
-module Pansite.Config.Instances () where
+module Pansite.AppConfig.Instances () where
 
 import           Control.Applicative
 import           Data.List
 import           Data.List.Split
 import           Data.Text (Text (..))
 import           Data.Yaml
-import           Pansite.Config.Types
+import           Pansite.AppConfig.Types
+
+instance FromJSON AppConfig where
+    parseJSON (Object v) = AppConfig
+        <$> v .: routesKey
+        <*> v .:? targetsKey .!= []
+    parseJSON _ = empty
+
+instance ToJSON AppConfig where
+    toJSON (AppConfig routes targets) = object
+        [ routesKey .= routes
+        , targetsKey .= targets
+        ]
 
 instance FromJSON BuildTool where
     parseJSON "pandoc" = pure Pandoc
@@ -25,18 +37,6 @@ instance FromJSON BuildTool where
 
 instance ToJSON BuildTool where
     toJSON Pandoc = "pandoc"
-
-instance FromJSON Config where
-    parseJSON (Object v) = Config
-        <$> v .: routesKey
-        <*> v .:? targetsKey .!= []
-    parseJSON _ = empty
-
-instance ToJSON Config where
-    toJSON (Config routes targets) = object
-        [ routesKey .= routes
-        , targetsKey .= targets
-        ]
 
 instance FromJSON Route where
     parseJSON (Object v) = Route

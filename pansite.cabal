@@ -22,9 +22,9 @@ library
   ghc-options:                    -Werror -fwarn-incomplete-patterns
   hs-source-dirs:                 src
   exposed-modules:                Pansite
-  other-modules:                  Pansite.Config
-                                , Pansite.Config.Instances
-                                , Pansite.Config.Types
+  other-modules:                  Pansite.AppConfig
+                                , Pansite.AppConfig.Instances
+                                , Pansite.AppConfig.Types
                                 , Pansite.Event
                                 , Pansite.IO
                                 , Pansite.IO.Funcs

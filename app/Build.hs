@@ -8,8 +8,8 @@ import           Pansite
 runBuildTool :: BuildTool -> FilePath -> [FilePath] -> Action ()
 runBuildTool Pandoc outputPath inputPaths = cmd "pandoc -o" [outputPath] inputPaths
 
-build :: Config -> FilePath -> FilePath -> FilePath -> IO ()
-build (Config _ targets) target siteDir outputDir = shake shakeOptions { shakeFiles = outputDir } $ do
+build :: AppConfig -> FilePath -> FilePath -> FilePath -> IO ()
+build (AppConfig _ targets) target siteDir outputDir = shake shakeOptions { shakeFiles = outputDir } $ do
     want [target]
 
     forM_ targets $ \(Target path buildTool dependencies) -> do

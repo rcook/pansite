@@ -35,41 +35,40 @@ import           System.Directory
 import           System.FilePath
 import           System.Process
 
--- TODO: Rename Config to AppConfig or similar to distinguish it from the other configuration data types
 -- TODO: Use UTCTime field to determine if shakeVersion should be incremented
-data ConfigInfo = ConfigInfo FilePath UTCTime Config deriving Show
+data AppConfigInfo = AppConfigInfo FilePath UTCTime AppConfig deriving Show
 
-readConfigInfo :: FilePath -> IO ConfigInfo
-readConfigInfo path = do
+readAppConfigInfo :: FilePath -> IO AppConfigInfo
+readAppConfigInfo path = do
     t <- getModificationTime path
     s <- C8.readFile path
-    let Just config = decode s -- TODO: Irrefutable pattern
-    return $ ConfigInfo path t config
+    let Just c = decode s -- TODO: Irrefutable pattern
+    return $ AppConfigInfo path t c
 
-buildTarget :: Config -> SiteConfig -> FilePath -> IO FilePath
-buildTarget config siteConfig target = do
+buildTarget :: AppConfig -> SiteConfig -> FilePath -> IO FilePath
+buildTarget appConfig siteConfig target = do
     -- TODO: Remove some of the redundancy from here
     -- TODO: Do not require that we pass outputDir' </> target as the target to build
     let siteDir' = siteDir siteConfig
         outputDir' = outputDir siteConfig
         targetPath = outputDir' </> target
-    build config targetPath siteDir' outputDir'
+    build appConfig targetPath siteDir' outputDir'
     return targetPath
 
 doScan :: ServerConfig -> IO ()
 doScan serverConfig = withStdoutLogger $ \logger -> do
     siteConfig <- mkSiteConfig "_site" "_output"
-    configInfo <- readConfigInfo (routesYamlPath siteConfig)
-    doIt serverConfig siteConfig logger configInfo
+    appConfigInfo <- readAppConfigInfo (routesYamlPath siteConfig)
+    doIt serverConfig siteConfig logger appConfigInfo
 
-doIt :: ServerConfig -> SiteConfig -> ApacheLogger -> ConfigInfo -> IO ()
-doIt (ServerConfig port) siteConfig logger (ConfigInfo _ _ config@(Config routes _)) = do
+doIt :: ServerConfig -> SiteConfig -> ApacheLogger -> AppConfigInfo -> IO ()
+doIt (ServerConfig port) siteConfig logger (AppConfigInfo _ _ appConfig@(AppConfig routes _)) = do
     let m = Map.fromList (map (\(Route paths sourcePath) -> (map Text.pack paths, Text.pack sourcePath)) routes)
     putStrLn $ "Listening on port " ++ show port
-    run port (app config siteConfig logger m)
+    run port (app appConfig siteConfig logger m)
 
-app :: Config -> SiteConfig -> ApacheLogger -> Map [Text] Text -> Application
-app config siteConfig logger m req f =
+app :: AppConfig -> SiteConfig -> ApacheLogger -> Map [Text] Text -> Application
+app appConfig siteConfig logger m req f =
     case Map.lookup (pathInfo req) m of
         Just sourcePath -> do
             liftIO $ logger req status200 (Just 0)
@@ -77,7 +76,7 @@ app config siteConfig logger m req f =
             -- TODO: Eliminate this re-encoding
             let sourcePath' = Text.unpack sourcePath
 
-            targetOutputPath <- buildTarget config siteConfig sourcePath'
+            targetOutputPath <- buildTarget appConfig siteConfig sourcePath'
             putStrLn $ "Read from " ++ targetOutputPath
 
             -- TODO: Eliminate this re-encoding
