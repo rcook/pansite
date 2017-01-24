@@ -41,13 +41,14 @@ runApp logger (ServerConfig port) configInfo@(ConfigInfo _ _ appConfig@(AppConfi
 app :: ApacheLogger -> ConfigInfo -> Map [Text] Text -> Application
 app logger configInfo m req f =
     case Map.lookup (pathInfo req) m of
-        Just sourcePath -> do
+        Just target -> do
             liftIO $ logger req status200 (Just 0)
 
             -- TODO: Eliminate this re-encoding
-            let target' = Text.unpack sourcePath
+            let target' = Text.unpack target
+            build configInfo target'
 
-            targetOutputPath <- buildTarget configInfo target'
+            let targetOutputPath = (outputDir configInfo) </> target'
             putStrLn $ "Read from " ++ targetOutputPath
 
             -- TODO: Eliminate this re-encoding
@@ -55,11 +56,6 @@ app logger configInfo m req f =
 
             f $ responseLBS status200 [(hContentType, "text/html")] (BL.fromStrict $ Text.encodeUtf8 content)
         Nothing -> f $ responseLBS status200 [(hContentType, "text/plain")] "No such route"
-
-buildTarget :: ConfigInfo -> FilePath -> IO FilePath
-buildTarget configInfo target = do
-    build configInfo target
-    return $ (outputDir configInfo) </> target
 
 main :: IO ()
 main = parseOptions >>= \(Options serverConfig appDir outputDir) -> withStdoutLogger $ \logger -> do
