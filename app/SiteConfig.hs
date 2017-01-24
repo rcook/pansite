@@ -9,13 +9,10 @@ Portability : portable
 -}
 
 module SiteConfig
-    ( AppConfigInfo (..)
-    , SiteConfig
-    , mkSiteConfig
+    ( ConfigInfo (..)
+    , appDir
     , outputDir
-    , readAppConfigInfo
-    , routesYamlPath
-    , siteDir
+    , readConfigInfo
     ) where
 
 import qualified Data.ByteString.Char8 as C8
@@ -25,30 +22,22 @@ import           Pansite
 import           System.Directory
 import           System.FilePath
 
--- TODO: Use UTCTime field to determine if shakeVersion should be incremented
-data AppConfigInfo = AppConfigInfo FilePath UTCTime AppConfig deriving Show
+data ConfigInfo = ConfigInfo FilePath FilePath AppConfig deriving Show
 
-data SiteConfig = SiteConfig FilePath FilePath FilePath
+appDir :: ConfigInfo -> FilePath
+appDir (ConfigInfo p _ _) = p
 
-mkSiteConfig :: FilePath -> FilePath -> IO SiteConfig
-mkSiteConfig siteDir outputDir = do
-    canonicalSiteDir <- canonicalizePath siteDir
-    let routesYamlPath = canonicalSiteDir </> "routes.yaml"
-    canonicalOutputDir <- canonicalizePath outputDir
-    return $ SiteConfig canonicalSiteDir routesYamlPath canonicalOutputDir
+outputDir :: ConfigInfo -> FilePath
+outputDir (ConfigInfo _ p _) = p
 
-siteDir :: SiteConfig -> FilePath
-siteDir (SiteConfig p _ _) = p
+readConfigInfo :: FilePath -> FilePath -> IO ConfigInfo
+readConfigInfo appDir outputDir = do
+    appDir' <- canonicalizePath appDir
+    outputDir' <- canonicalizePath outputDir
 
-routesYamlPath :: SiteConfig -> FilePath
-routesYamlPath (SiteConfig _ p _) = p
+    -- TODO: Use UTCTime field to determine if shakeVersion should be incremented
+    --t <- getModificationTime path
 
-outputDir :: SiteConfig -> FilePath
-outputDir (SiteConfig _ _ p) = p
-
-readAppConfigInfo :: FilePath -> IO AppConfigInfo
-readAppConfigInfo path = do
-    t <- getModificationTime path
-    s <- C8.readFile path
+    s <- C8.readFile (appDir' </> "routes.yaml")
     let Just c = decode s -- TODO: Irrefutable pattern
-    return $ AppConfigInfo path t c
+    return $ ConfigInfo appDir' outputDir' c

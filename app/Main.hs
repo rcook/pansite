@@ -32,22 +32,22 @@ import           System.Directory
 import           System.FilePath
 import           System.Process
 
-runApp :: ServerConfig -> SiteConfig -> ApacheLogger -> AppConfigInfo -> IO ()
-runApp (ServerConfig port) siteConfig logger (AppConfigInfo _ _ appConfig@(AppConfig routes _)) = do
+runApp :: ApacheLogger -> ServerConfig -> ConfigInfo -> IO ()
+runApp logger (ServerConfig port) configInfo@(ConfigInfo _ _ appConfig@(AppConfig routes _)) = do
     let m = Map.fromList (map (\(Route paths sourcePath) -> (map Text.pack paths, Text.pack sourcePath)) routes)
     putStrLn $ "Listening on port " ++ show port
-    run port (app appConfig siteConfig logger m)
+    run port (app logger configInfo m)
 
-app :: AppConfig -> SiteConfig -> ApacheLogger -> Map [Text] Text -> Application
-app appConfig siteConfig logger m req f =
+app :: ApacheLogger -> ConfigInfo -> Map [Text] Text -> Application
+app logger configInfo m req f =
     case Map.lookup (pathInfo req) m of
         Just sourcePath -> do
             liftIO $ logger req status200 (Just 0)
 
             -- TODO: Eliminate this re-encoding
-            let sourcePath' = Text.unpack sourcePath
+            let target' = Text.unpack sourcePath
 
-            targetOutputPath <- buildTarget appConfig siteConfig sourcePath'
+            targetOutputPath <- buildTarget configInfo target'
             putStrLn $ "Read from " ++ targetOutputPath
 
             -- TODO: Eliminate this re-encoding
@@ -56,18 +56,12 @@ app appConfig siteConfig logger m req f =
             f $ responseLBS status200 [(hContentType, "text/html")] (BL.fromStrict $ Text.encodeUtf8 content)
         Nothing -> f $ responseLBS status200 [(hContentType, "text/plain")] "No such route"
 
-buildTarget :: AppConfig -> SiteConfig -> FilePath -> IO FilePath
-buildTarget appConfig siteConfig target = do
-    -- TODO: Remove some of the redundancy from here
-    -- TODO: Do not require that we pass outputDir' </> target as the target to build
-    let siteDir' = siteDir siteConfig
-        outputDir' = outputDir siteConfig
-        targetPath = outputDir' </> target
-    build appConfig targetPath siteDir' outputDir'
-    return targetPath
+buildTarget :: ConfigInfo -> FilePath -> IO FilePath
+buildTarget configInfo target = do
+    build configInfo target
+    return $ (outputDir configInfo) </> target
 
 main :: IO ()
 main = parseOptions >>= \(Options serverConfig appDir outputDir) -> withStdoutLogger $ \logger -> do
-    siteConfig <- mkSiteConfig appDir outputDir
-    appConfigInfo <- readAppConfigInfo (routesYamlPath siteConfig)
-    runApp serverConfig siteConfig logger appConfigInfo
+    configInfo <- readConfigInfo appDir outputDir
+    runApp logger serverConfig configInfo
