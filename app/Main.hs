@@ -32,18 +32,8 @@ import           System.Directory
 import           System.FilePath
 import           System.Process
 
-buildTarget :: AppConfig -> SiteConfig -> FilePath -> IO FilePath
-buildTarget appConfig siteConfig target = do
-    -- TODO: Remove some of the redundancy from here
-    -- TODO: Do not require that we pass outputDir' </> target as the target to build
-    let siteDir' = siteDir siteConfig
-        outputDir' = outputDir siteConfig
-        targetPath = outputDir' </> target
-    build appConfig targetPath siteDir' outputDir'
-    return targetPath
-
-doIt :: ServerConfig -> SiteConfig -> ApacheLogger -> AppConfigInfo -> IO ()
-doIt (ServerConfig port) siteConfig logger (AppConfigInfo _ _ appConfig@(AppConfig routes _)) = do
+runApp :: ServerConfig -> SiteConfig -> ApacheLogger -> AppConfigInfo -> IO ()
+runApp (ServerConfig port) siteConfig logger (AppConfigInfo _ _ appConfig@(AppConfig routes _)) = do
     let m = Map.fromList (map (\(Route paths sourcePath) -> (map Text.pack paths, Text.pack sourcePath)) routes)
     putStrLn $ "Listening on port " ++ show port
     run port (app appConfig siteConfig logger m)
@@ -66,8 +56,18 @@ app appConfig siteConfig logger m req f =
             f $ responseLBS status200 [(hContentType, "text/html")] (BL.fromStrict $ Text.encodeUtf8 content)
         Nothing -> f $ responseLBS status200 [(hContentType, "text/plain")] "No such route"
 
+buildTarget :: AppConfig -> SiteConfig -> FilePath -> IO FilePath
+buildTarget appConfig siteConfig target = do
+    -- TODO: Remove some of the redundancy from here
+    -- TODO: Do not require that we pass outputDir' </> target as the target to build
+    let siteDir' = siteDir siteConfig
+        outputDir' = outputDir siteConfig
+        targetPath = outputDir' </> target
+    build appConfig targetPath siteDir' outputDir'
+    return targetPath
+
 main :: IO ()
 main = parseOptions >>= \(Options serverConfig) -> withStdoutLogger $ \logger -> do
     siteConfig <- mkSiteConfig "_site" "_output"
     appConfigInfo <- readAppConfigInfo (routesYamlPath siteConfig)
-    doIt serverConfig siteConfig logger appConfigInfo
+    runApp serverConfig siteConfig logger appConfigInfo
