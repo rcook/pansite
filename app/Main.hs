@@ -42,12 +42,6 @@ buildTarget appConfig siteConfig target = do
     build appConfig targetPath siteDir' outputDir'
     return targetPath
 
-doScan :: ServerConfig -> IO ()
-doScan serverConfig = withStdoutLogger $ \logger -> do
-    siteConfig <- mkSiteConfig "_site" "_output"
-    appConfigInfo <- readAppConfigInfo (routesYamlPath siteConfig)
-    doIt serverConfig siteConfig logger appConfigInfo
-
 doIt :: ServerConfig -> SiteConfig -> ApacheLogger -> AppConfigInfo -> IO ()
 doIt (ServerConfig port) siteConfig logger (AppConfigInfo _ _ appConfig@(AppConfig routes _)) = do
     let m = Map.fromList (map (\(Route paths sourcePath) -> (map Text.pack paths, Text.pack sourcePath)) routes)
@@ -73,5 +67,7 @@ app appConfig siteConfig logger m req f =
         Nothing -> f $ responseLBS status200 [(hContentType, "text/plain")] "No such route"
 
 main :: IO ()
-main = parseOptions >>=
-    \(Options serverConfig) -> doScan serverConfig
+main = parseOptions >>= \(Options serverConfig) -> withStdoutLogger $ \logger -> do
+    siteConfig <- mkSiteConfig "_site" "_output"
+    appConfigInfo <- readAppConfigInfo (routesYamlPath siteConfig)
+    doIt serverConfig siteConfig logger appConfigInfo
