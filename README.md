@@ -4,6 +4,10 @@
 
 This project uses [Stack][stack]
 
+## Why are you doing this?
+
+I want a [Hakyll][hakyll]-like static web site generator that can be easily used in conjunction with a dynamic site built with [Yesod][yesod]. I want it to use Pandoc so that I can build rich content, possibly with embedded mathematics. I also want it to be responsive, so that when I make changes to the underlying Markdown files, I can view the updated output in my browser quickly instead of having to wait thirty seconds for the Hakyll build to complete. There are probably tools that already do this (probably Hakyll itself can be made to do this), but I love reinventing the wheel. So, that's what I'm going to do.
+
 ## Work in progress
 
 This project is a prototype and, therefore, _should not be used for any real work yet!_
@@ -78,9 +82,11 @@ Copyright &copy; 2017 Richard Cook
 
 [cmd-hackage]: https://hackage.haskell.org/package/shake-0.15.11/docs/Development-Shake-Command.html
 [gnu-make]: https://www.gnu.org/software/make/
+[hakyll]: https://jaspervdj.be/hakyll/
 [licence]: LICENSE
 [pandoc-hackage]: https://hackage.haskell.org/package/pandoc
 [routes-example]: _app/routes.yaml
 [shake]: http://shakebuild.com/
 [stack]: https://haskellstack.org/
 [warp-hackage]: https://hackage.haskell.org/package/warp
+[yesod]: http://www.yesodweb.com/
