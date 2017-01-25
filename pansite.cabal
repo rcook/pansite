@@ -52,13 +52,16 @@ executable pansite-app
   other-modules:                  Build
                                 , CommandLine
                                 , ConfigInfo
+                                , PandocBuildTool
   build-depends:                  base
+                                , blaze-html
                                 , bytestring
                                 , containers
                                 , directory
                                 , filepath
                                 , http-types
                                 , optparse-applicative
+                                , pandoc
                                 , pansite
                                 , process
                                 , shake

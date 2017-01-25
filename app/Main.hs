@@ -27,6 +27,7 @@ import           Network.HTTP.Types.Header
 import           Network.Wai
 import           Network.Wai.Handler.Warp
 import           Network.Wai.Logger
+import           PandocBuildTool
 import           Pansite
 import           System.Directory
 import           System.FilePath
@@ -46,7 +47,9 @@ app logger configInfo m req f =
 
             -- TODO: Eliminate this re-encoding
             let target' = Text.unpack target
-            build configInfo target'
+
+            -- TODO: Come up with some mechanism to pass multiple build tools
+            build pandocRender configInfo target'
 
             let targetOutputPath = (outputDir configInfo) </> target'
             putStrLn $ "Read from " ++ targetOutputPath
