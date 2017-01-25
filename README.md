@@ -52,6 +52,24 @@ stack exec -- pansite-app --port 3000
 
 In your web browser, navigate to a route defined in `routes.yaml`, e.g. `http://localhost:3000/content/ctp`.
 
+## Command-line options
+
+```terminal
+$ stack exec -- pansite-app --help
+Pansite development server
+
+Usage: pansite-app [-p|--port PORT] [-a|--app-dir APPDIR]
+                       [-o|--output-dir OUTPUTDIR]
+  Run Pansite development server
+
+Available options:
+  -h,--help                Show this help text
+  -p,--port PORT           port
+  -a,--app-dir APPDIR      application directory
+  -o,--output-dir OUTPUTDIR
+                           output directory
+```
+
 ## Licence
 
 Released under [MIT License][licence]
