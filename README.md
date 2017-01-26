@@ -12,6 +12,13 @@ I want a [Hakyll][hakyll]-like static web site generator that can be easily used
 
 This project is a prototype and, therefore, _should not be used for any real work yet!_
 
+## Current features
+
+* Uses Pandoc to render Markdown into HTML
+* Supports static resources such as CSS
+* Supports dynamic refresh of routes
+* Shake-based build ensure that outputs are correctly maintained as long as dependencies are fully specified
+
 ## The vision
 
 Currently Pansite is a trivial web app built on top of [Warp][warp-hackage]. Routes are defined in a `routes.yaml` file using the following schema:
