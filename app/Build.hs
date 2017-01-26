@@ -39,7 +39,7 @@ runBuildTool Pandoc pandocRenderer outputPath inputPaths = liftIO $ do
 
 -- TODO: Pass some kind of map of renderers to support more than one build tool
 build :: Renderer -> ConfigInfo -> FilePath -> IO ()
-build pandocRenderer (ConfigInfo appDir outputDir (AppConfig _ targets)) target = shake shakeOptions { shakeFiles = outputDir } $ do
+build pandocRenderer (ConfigInfo _ _ appDir outputDir (AppConfig _ targets)) target = shake shakeOptions { shakeFiles = outputDir } $ do
     want [outputDir </> target]
 
     forM_ targets $ \(Target path buildTool dependencies) -> do

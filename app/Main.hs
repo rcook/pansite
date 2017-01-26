@@ -19,6 +19,7 @@ import           Control.Monad.IO.Class
 import qualified Data.ByteString.Lazy as BL
 import           Data.Map (Map)
 import qualified Data.Map as Map
+import           Data.IORef
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
@@ -35,13 +36,28 @@ import           System.Process
 import           Util
 
 runApp :: ApacheLogger -> ServerConfig -> ConfigInfo -> IO ()
-runApp logger (ServerConfig port) configInfo@(ConfigInfo _ _ appConfig@(AppConfig routes _)) = do
-    let m = Map.fromList (map (\(Route paths sourcePath) -> (map Text.pack paths, Text.pack sourcePath)) routes)
+runApp logger (ServerConfig port) configInfo = do
     putStrLn $ "Listening on port " ++ show port
-    run port (app logger configInfo m)
+    configInfoRef <- newIORef configInfo
+    run port (app logger configInfoRef)
 
-app :: ApacheLogger -> ConfigInfo -> Map [Text] Text -> Application
-app logger configInfo m req f =
+app :: ApacheLogger -> IORef ConfigInfo -> Application
+app logger configInfoRef req f = do
+    -- TODO: Think about concurrent accesses...
+    -- TODO: This is a mess..
+    oldConfigInfo <- liftIO $ readIORef configInfoRef
+    mbConfigInfo <- liftIO $ updateConfigInfo oldConfigInfo
+    configInfo <- case mbConfigInfo of
+                        Nothing -> return oldConfigInfo
+                        Just configInfo' -> do
+                            liftIO $ atomicWriteIORef configInfoRef configInfo'
+                            return configInfo'
+
+    let (ConfigInfo timestamp _ _ _ appConfig@(AppConfig routes _)) = configInfo
+
+    -- TODO: Let's not rebuild this on every request
+    let m = Map.fromList (map (\(Route paths sourcePath) -> (map Text.pack paths, Text.pack sourcePath)) routes)
+
     case Map.lookup (pathInfo req) m of
         Just target -> do
             liftIO $ logger req status200 (Just 0)

@@ -8,11 +8,12 @@ Stability   : experimental
 Portability : portable
 -}
 
+{-# LANGUAGE RecordWildCards #-}
+
 module ConfigInfo
     ( ConfigInfo (..)
-    , appDir
-    , outputDir
     , readConfigInfo
+    , updateConfigInfo
     ) where
 
 import qualified Data.ByteString.Char8 as C8
@@ -22,13 +23,16 @@ import           Pansite
 import           System.Directory
 import           System.FilePath
 
-data ConfigInfo = ConfigInfo FilePath FilePath AppConfig deriving Show
+data ConfigInfo = ConfigInfo
+    { timestamp :: UTCTime
+    , routesYamlPath :: FilePath
+    , appDir :: FilePath
+    , outputDir :: FilePath
+    , appConfig :: AppConfig
+    } deriving Show
 
-appDir :: ConfigInfo -> FilePath
-appDir (ConfigInfo p _ _) = p
-
-outputDir :: ConfigInfo -> FilePath
-outputDir (ConfigInfo _ p _) = p
+emptyConfigInfo :: UTCTime -> FilePath -> FilePath -> FilePath -> ConfigInfo
+emptyConfigInfo timestamp routesYamlPath appDir outputDir = ConfigInfo timestamp routesYamlPath appDir outputDir (AppConfig [] [])
 
 readConfigInfo :: FilePath -> FilePath -> IO ConfigInfo
 readConfigInfo appDir outputDir = do
@@ -36,8 +40,29 @@ readConfigInfo appDir outputDir = do
     outputDir' <- canonicalizePath outputDir
 
     -- TODO: Use UTCTime field to determine if shakeVersion should be incremented
-    --t <- getModificationTime path
+    let routesYamlPath = appDir' </> "routes.yaml"
+    currentTime <- getCurrentTime
 
-    s <- C8.readFile (appDir' </> "routes.yaml")
-    let Just c = decode s -- TODO: Irrefutable pattern
-    return $ ConfigInfo appDir' outputDir' c
+    routesYamlExists <- doesFileExist routesYamlPath
+    if routesYamlExists
+        then do
+            putStrLn $ "Getting timestamp for configuration file " ++ routesYamlPath
+            t <- getModificationTime routesYamlPath
+            s <- C8.readFile routesYamlPath
+            case decode s of
+                Just c -> return $ ConfigInfo t routesYamlPath appDir' outputDir' c
+                Nothing -> do
+                    putStrLn $ "Could not parse configuration file at " ++ routesYamlPath
+                    return $ emptyConfigInfo currentTime routesYamlPath appDir' outputDir'
+        else do
+            putStrLn $ "Configuration file does not exist at " ++ routesYamlPath
+            return $ emptyConfigInfo currentTime routesYamlPath appDir' outputDir'
+
+updateConfigInfo :: ConfigInfo -> IO (Maybe ConfigInfo)
+updateConfigInfo ConfigInfo{..} = do
+    t <- getModificationTime routesYamlPath
+    if (t > timestamp)
+        then do
+            configInfo' <- readConfigInfo appDir outputDir
+            return $ Just configInfo'
+        else return Nothing
