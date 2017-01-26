@@ -13,9 +13,14 @@ cssUrls = ["css/buttondown.css"]
 pandocRender :: RenderOpts -> String -> String
 pandocRender (RenderOpts template) s =
     let Right doc = readMarkdown def s -- TODO: Irrefutable pattern
+        -- TODO: Most, if not all, of these settings should be pulled from
+        -- routes.yaml etc.
+        -- TODO: Consider renaming routes.yaml to app.yaml since it's more than
+        -- just routes
         writerOpts = def
             { writerStandalone = True
             , writerTemplate = template
             , writerVariables = map (\x -> ("css", x)) cssUrls
+            , writerNumberSections = True
             }
     in toEntities (renderHtml (writeHtml writerOpts doc))
