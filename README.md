@@ -34,7 +34,7 @@ Each `path` entry defines a route that the web app will respond to. The `target`
 
 The cached content files are currently built using [Shake][shake] using rules generated from the `routes.yaml` file. Thus, the app itself defines how to build the cached content files using a simple declarative format. There is a silly test site defined under `_app`, specifically in [`_app/routes.yaml`][routes-example] that demonstrates the idea. I do not want to allow the app's content itself to provide a Shake build script since I do not want to allow the user-provided content to run arbitrary commands on my server. Instead, the simple declarative rules in `routes.yaml` constrain what the build system can do while still keeping it useful.
 
-I expect that I will also directly link to the [Pandoc][pandoc-hackage] libraries instead of having Shake shell out to the `pandoc` executable.
+Currently this prototype demonstrates the use of a single build tool, namely [Pandoc][pandoc-hackage]. I intend to refactor the code to make it straightforward to specify additional build tools: some will be embedded directly, like Pandoc, others can use the Shake's [`cmd`][cmd-hackage] function to invoke external processes.
 
 ## How to run it
 
@@ -50,9 +50,7 @@ Run the example site:
 stack exec -- pansite-app --port 3000
 ```
 
-In your web browser, navigate to a route defined in `routes.yaml`, e.g. http://localhost:3000/content/ctp.
-
-Note that you'll need to have the `pandoc` executable on your system search path for the time being otherwise Pansite will fail at runtime. Once we embed Pandoc into the `pansite-app` executable directly, this will no longer be a requirement.
+In your web browser, navigate to a route defined in `routes.yaml`, e.g. `http://localhost:3000/content/ctp`.
 
 ## Licence
 
@@ -60,6 +58,7 @@ Released under [MIT License][licence]
 
 Copyright &copy; 2017 Richard Cook
 
+[cmd-hackage]: https://hackage.haskell.org/package/shake-0.15.11/docs/Development-Shake-Command.html
 [gnu-make]: https://www.gnu.org/software/make/
 [licence]: LICENSE
 [pandoc-hackage]: https://hackage.haskell.org/package/pandoc
