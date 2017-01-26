@@ -8,6 +8,8 @@ Stability   : experimental
 Portability : portable
 -}
 
+module Main (main) where
+
 import           Distribution.Simple
 
 main :: IO ()
