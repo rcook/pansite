@@ -32,6 +32,7 @@ import           Pansite
 import           System.Directory
 import           System.FilePath
 import           System.Process
+import           Util
 
 runApp :: ApacheLogger -> ServerConfig -> ConfigInfo -> IO ()
 runApp logger (ServerConfig port) configInfo@(ConfigInfo _ _ appConfig@(AppConfig routes _)) = do
@@ -55,9 +56,9 @@ app logger configInfo m req f =
             putStrLn $ "Read from " ++ targetOutputPath
 
             -- TODO: Eliminate this re-encoding
-            content <- Text.pack <$> readFile targetOutputPath
+            content <- Text.pack <$> readFileUtf8 targetOutputPath
 
-            f $ responseLBS status200 [(hContentType, "text/html")] (BL.fromStrict $ Text.encodeUtf8 content)
+            f $ responseLBS status200 [(hContentType, "text/html; charset=utf-8")] (BL.fromStrict $ Text.encodeUtf8 content)
         Nothing -> f $ responseLBS status200 [(hContentType, "text/plain")] "No such route"
 
 main :: IO ()

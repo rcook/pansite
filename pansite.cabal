@@ -53,6 +53,7 @@ executable pansite-app
                                 , CommandLine
                                 , ConfigInfo
                                 , PandocBuildTool
+                                , Util
   build-depends:                  base
                                 , blaze-html
                                 , bytestring

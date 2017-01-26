@@ -5,6 +5,7 @@ import           Control.Monad
 import           Development.Shake
 import           Development.Shake.FilePath
 import           Pansite
+import           Util
 
 type Renderer = String -> String
 
@@ -17,7 +18,7 @@ runBuildTool :: BuildTool -> Renderer -> FilePath -> [FilePath] -> Action ()
 runBuildTool Pandoc pandocRenderer outputPath inputPaths = liftIO $ do
     input <- readFile (head inputPaths) -- TODO: Unsafe, let's not do this
     let output = pandocRenderer input
-    writeFile outputPath output
+    writeFileUtf8 outputPath output
 
 -- TODO: Pass some kind of map of renderers to support more than one build tool
 build :: Renderer -> ConfigInfo -> FilePath -> IO ()
