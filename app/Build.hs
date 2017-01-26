@@ -1,13 +1,25 @@
-module Build (build) where
+module Build
+    ( RenderOpts (..)
+    , build
+    ) where
 
 import           ConfigInfo
 import           Control.Monad
+import           Data.Default
 import           Development.Shake
 import           Development.Shake.FilePath
 import           Pansite
+import           Paths_pansite
 import           Util
 
-type Renderer = String -> String
+data RenderOpts = RenderOpts
+    { renderOptsTemplate :: String
+    }
+
+type Renderer = RenderOpts -> String -> String
+
+instance Default RenderOpts where
+    def = RenderOpts { renderOptsTemplate = "" }
 
 -- TODO: Dependency paths won't work in the long term
 -- We need to distinguish between the primary input(s) and the dependencies
@@ -17,7 +29,12 @@ type Renderer = String -> String
 runBuildTool :: BuildTool -> Renderer -> FilePath -> [FilePath] -> Action ()
 runBuildTool Pandoc pandocRenderer outputPath inputPaths = liftIO $ do
     input <- readFile (head inputPaths) -- TODO: Unsafe, let's not do this
-    let output = pandocRenderer input
+    templatePath <- getDataFileName "template.html"
+    template <- readFileUtf8 templatePath
+    let renderOpts = def
+            { renderOptsTemplate = template
+            }
+        output = pandocRenderer renderOpts input
     writeFileUtf8 outputPath output
 
 -- TODO: Pass some kind of map of renderers to support more than one build tool

@@ -12,6 +12,8 @@ category:                         Web
 build-type:                       Simple
 extra-source-files:               README.md
 cabal-version:                    >= 1.10
+data-dir:                         data
+data-files:                       template.html
 
 source-repository head
   type:                           git
@@ -58,6 +60,7 @@ executable pansite-app
                                 , blaze-html
                                 , bytestring
                                 , containers
+                                , data-default
                                 , directory
                                 , filepath
                                 , http-types
