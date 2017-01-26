@@ -32,10 +32,12 @@ instance ToJSON AppConfig where
         ]
 
 instance FromJSON BuildTool where
+    parseJSON "copy" = pure Copy
     parseJSON "pandoc" = pure Pandoc
     parseJSON _ = empty
 
 instance ToJSON BuildTool where
+    toJSON Copy = "copy"
     toJSON Pandoc = "pandoc"
 
 instance FromJSON Route where

@@ -16,6 +16,6 @@ module Pansite.AppConfig.Types
     ) where
 
 data AppConfig = AppConfig [Route] [Target] deriving Show
-data BuildTool = Pandoc deriving Show
+data BuildTool = Copy | Pandoc deriving Show
 data Route = Route [String] FilePath deriving Show
 data Target = Target FilePath BuildTool [FilePath] deriving Show

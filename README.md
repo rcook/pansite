@@ -40,6 +40,11 @@ The cached content files are currently built using [Shake][shake] using rules ge
 
 Currently this prototype demonstrates the use of a single build tool, namely [Pandoc][pandoc-hackage]. I intend to refactor the code to make it straightforward to specify additional build tools: some will be embedded directly, like Pandoc, others can use the Shake's [`cmd`][cmd-hackage] function to invoke external processes.
 
+Build tools currently supported:
+
+* Pandoc (`pandoc`): Process input files using Pandoc
+* Copy (`copy`): Copy input file to output
+
 ## How to run it
 
 Build it:

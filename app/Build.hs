@@ -10,6 +10,7 @@ import           Development.Shake
 import           Development.Shake.FilePath
 import           Pansite
 import           Paths_pansite
+import           System.Directory
 import           Util
 
 data RenderOpts = RenderOpts
@@ -27,6 +28,9 @@ instance Default RenderOpts where
 -- Right now, we'll only handle a single input hence the unsafe use of "head"
 -- which we should remove in the future
 runBuildTool :: BuildTool -> Renderer -> FilePath -> [FilePath] -> Action ()
+runBuildTool Copy _ outputPath inputPaths = liftIO $ do
+    let inputPath = head inputPaths -- TODO: Unsafe, let's not do this
+    copyFile inputPath outputPath
 runBuildTool Pandoc pandocRenderer outputPath inputPaths = liftIO $ do
     input <- readFile (head inputPaths) -- TODO: Unsafe, let's not do this
     templatePath <- getDataFileName "template.html"

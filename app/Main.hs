@@ -66,6 +66,7 @@ app logger configInfoRef req f = do
             let target' = Text.unpack target
 
             -- TODO: Come up with some mechanism to pass multiple build tools
+            -- Currently we're passing pandocRender even if the build tool is "copy" etc.
             build pandocRender configInfo target'
 
             let targetOutputPath = (outputDir configInfo) </> target'
@@ -74,7 +75,13 @@ app logger configInfoRef req f = do
             -- TODO: Eliminate this re-encoding
             content <- Text.pack <$> readFileUtf8 targetOutputPath
 
-            f $ responseLBS status200 [(hContentType, "text/html; charset=utf-8")] (BL.fromStrict $ Text.encodeUtf8 content)
+            -- TODO: Ugh. Let's make this less hacky. It works for now though.
+            let contentType = case (takeExtension targetOutputPath) of
+                                ".css" -> "text/css; charset=utf-8"
+                                ".html" -> "text/html; charset=utf-8"
+                                _ -> "text/plain; charset=utf-8"
+
+            f $ responseLBS status200 [(hContentType, contentType)] (BL.fromStrict $ Text.encodeUtf8 content)
         Nothing -> f $ responseLBS status200 [(hContentType, "text/plain")] "No such route"
 
 main :: IO ()
