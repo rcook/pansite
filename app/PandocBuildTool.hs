@@ -6,7 +6,7 @@ import           Text.Pandoc
 import           Text.Pandoc.XML
 import           Paths_pansite
 
--- TODO: Eventually extract this as a configuration setting in routes.yaml
+-- TODO: Eventually extract this as a configuration setting in app.yaml
 cssUrls :: [FilePath]
 cssUrls = ["css/buttondown.css"]
 
@@ -14,9 +14,7 @@ pandocRender :: RenderOpts -> String -> String
 pandocRender (RenderOpts template) s =
     let Right doc = readMarkdown def s -- TODO: Irrefutable pattern
         -- TODO: Most, if not all, of these settings should be pulled from
-        -- routes.yaml etc.
-        -- TODO: Consider renaming routes.yaml to app.yaml since it's more than
-        -- just routes
+        -- app.yaml etc.
         writerOpts = def
             { writerTemplate = Just template
             , writerVariables = map (\x -> ("css", x)) cssUrls
