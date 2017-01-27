@@ -56,10 +56,12 @@ executable pansite-app
                                 , ConfigInfo
                                 , PandocBuildTool
                                 , PandocBuildTool.Instances
+                                , PandocBuildTool.Parser
                                 , PandocBuildTool.Render
                                 , PandocBuildTool.Types
                                 , Util
-  build-depends:                  base
+  build-depends:                  aeson
+                                , base
                                 , blaze-html
                                 , bytestring
                                 , containers

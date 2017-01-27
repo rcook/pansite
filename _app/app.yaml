@@ -13,3 +13,11 @@ targets:
   build-tool: pandoc
   dependencies:
   - pcph.md
+
+pandoc:
+- a: b
+- x: y
+
+copy:
+- a: b
+- x: y
