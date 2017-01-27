@@ -55,6 +55,7 @@ executable pansite-app
                                 , CommandLine
                                 , ConfigInfo
                                 , PandocBuildTool
+                                , PandocBuildTool.Render
                                 , Util
   build-depends:                  base
                                 , blaze-html
