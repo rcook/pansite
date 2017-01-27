@@ -18,8 +18,7 @@ pandocRender (RenderOpts template) s =
         -- TODO: Consider renaming routes.yaml to app.yaml since it's more than
         -- just routes
         writerOpts = def
-            { writerStandalone = True
-            , writerTemplate = template
+            { writerTemplate = Just template
             , writerVariables = map (\x -> ("css", x)) cssUrls
             , writerNumberSections = True
             }
