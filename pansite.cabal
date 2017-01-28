@@ -35,13 +35,17 @@ library
                                 , Pansite.TestServer
                                 , Pansite.TestServer.Funcs
                                 , Pansite.TestServer.Types
+                                , Pansite.Tool
+                                , Pansite.Tool.Types
   build-depends:                  base
                                 , bytestring
                                 , containers
+                                , data-default
                                 , http-types
                                 , split
                                 , stm
                                 , text
+                                , unordered-containers
                                 , wai
                                 , warp
                                 , yaml
