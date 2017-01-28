@@ -16,9 +16,16 @@ module ConfigInfo
     , updateConfigInfo
     ) where
 
+import           Data.Aeson.Types
 import qualified Data.ByteString.Char8 as C8
+import qualified Data.HashMap.Strict as HashMap
 import           Data.Time
 import           Data.Yaml
+import           CopyTool.Instances
+import           CopyTool.Parser
+import           CopyTool.Render
+import           PandocBuildTool.Parser
+import           PandocBuildTool.Render
 import           Pansite
 import           System.Directory
 import           System.FilePath
@@ -29,10 +36,17 @@ data ConfigInfo = ConfigInfo
     , appDir :: FilePath
     , outputDir :: FilePath
     , appConfig :: AppConfig
-    } deriving Show
+    }
+
+tools :: [Tool]
+tools =
+    [ Tool "pandoc" pandocSettingsParser pandocRenderer
+    , Tool "copy" copySettingsParser copyRenderer
+    ]
 
 emptyConfigInfo :: UTCTime -> FilePath -> FilePath -> FilePath -> ConfigInfo
-emptyConfigInfo timestamp appYamlPath appDir outputDir = ConfigInfo timestamp appYamlPath appDir outputDir (AppConfig [] [])
+emptyConfigInfo timestamp appYamlPath appDir outputDir =
+    ConfigInfo timestamp appYamlPath appDir outputDir (AppConfig [] [] HashMap.empty)
 
 readConfigInfo :: FilePath -> FilePath -> IO ConfigInfo
 readConfigInfo appDir outputDir = do
@@ -48,12 +62,17 @@ readConfigInfo appDir outputDir = do
         then do
             putStrLn $ "Getting timestamp for configuration file " ++ appYamlPath
             t <- getModificationTime appYamlPath
-            s <- C8.readFile appYamlPath
-            case decode s of
-                Just c -> return $ ConfigInfo t appYamlPath appDir' outputDir' c
-                Nothing -> do
-                    putStrLn $ "Could not parse configuration file at " ++ appYamlPath
+            yaml <- C8.readFile appYamlPath
+            case decodeEither' yaml of
+                Left e -> do
+                    putStrLn $ "Parse exception: " ++ show e
                     return $ emptyConfigInfo currentTime appYamlPath appDir' outputDir'
+                Right value -> do
+                    case parse (appConfigParser tools) value of
+                        Error message -> do
+                            putStrLn $ "Could not parse configuration file at " ++ appYamlPath ++ ": " ++ message
+                            return $ emptyConfigInfo currentTime appYamlPath appDir' outputDir'
+                        Success appConfig -> return $ ConfigInfo t appYamlPath appDir' outputDir' appConfig
         else do
             putStrLn $ "Configuration file does not exist at " ++ appYamlPath
             return $ emptyConfigInfo currentTime appYamlPath appDir' outputDir'

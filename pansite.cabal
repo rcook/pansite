@@ -12,8 +12,6 @@ category:                         Web
 build-type:                       Simple
 extra-source-files:               README.md
 cabal-version:                    >= 1.10
-data-dir:                         data
-data-files:                       template.html
 
 source-repository head
   type:                           git
@@ -26,7 +24,6 @@ library
   exposed-modules:                Pansite
   other-modules:                  Pansite.AppConfig
                                 , Pansite.AppConfig.Funcs
-                                , Pansite.AppConfig.Instances
                                 , Pansite.AppConfig.Keys
                                 , Pansite.AppConfig.Types
                                 , Pansite.Event
@@ -49,6 +46,7 @@ library
                                 , stm
                                 , text
                                 , unordered-containers
+                                , vector
                                 , wai
                                 , warp
                                 , yaml
@@ -61,12 +59,16 @@ executable pansite-app
   other-modules:                  Build
                                 , CommandLine
                                 , ConfigInfo
+                                , CopyTool
+                                , CopyTool.Instances
+                                , CopyTool.Parser
+                                , CopyTool.Render
+                                , CopyTool.Types
                                 , PandocBuildTool
                                 , PandocBuildTool.Instances
                                 , PandocBuildTool.Parser
                                 , PandocBuildTool.Render
                                 , PandocBuildTool.Types
-                                , ToolSettings
                                 , Util
   build-depends:                  aeson
                                 , base

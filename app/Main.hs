@@ -16,7 +16,9 @@ import           Build
 import           CommandLine
 import           ConfigInfo
 import           Control.Monad.IO.Class
+import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BL
+import qualified Data.HashMap.Strict as HashMap
 import           Data.Map (Map)
 import qualified Data.Map as Map
 import           Data.IORef
@@ -31,9 +33,9 @@ import           Network.Wai.Logger
 import           PandocBuildTool
 import           Pansite
 import           System.Directory
+import           System.Exit
 import           System.FilePath
 import           System.Process
-import           ToolSettings
 import           Util
 
 runApp :: ApacheLogger -> ServerConfig -> ConfigInfo -> IO ()
@@ -54,7 +56,7 @@ app logger configInfoRef req f = do
                             liftIO $ atomicWriteIORef configInfoRef configInfo'
                             return configInfo'
 
-    let (ConfigInfo timestamp _ _ _ appConfig@(AppConfig routes _)) = configInfo
+    let (ConfigInfo timestamp _ _ _ appConfig@(AppConfig routes _ toolRunners)) = configInfo
 
     -- TODO: Let's not rebuild this on every request
     let m = Map.fromList (map (\(Route paths sourcePath) -> (map Text.pack paths, Text.pack sourcePath)) routes)
@@ -68,7 +70,7 @@ app logger configInfoRef req f = do
 
             -- TODO: Come up with some mechanism to pass multiple build tools
             -- Currently we're passing pandocRender even if the build tool is "copy" etc.
-            build pandocRender configInfo target'
+            build toolRunners configInfo target'
 
             let targetOutputPath = (outputDir configInfo) </> target'
             putStrLn $ "Read from " ++ targetOutputPath
@@ -86,8 +88,7 @@ app logger configInfoRef req f = do
         Nothing -> f $ responseLBS status200 [(hContentType, "text/plain")] "No such route"
 
 main :: IO ()
-main = demoToolSettings >>
-    parseOptions >>=
+main = parseOptions >>=
         \(Options serverConfig appDir outputDir) -> withStdoutLogger $ \logger -> do
         configInfo <- readConfigInfo appDir outputDir
         runApp logger serverConfig configInfo

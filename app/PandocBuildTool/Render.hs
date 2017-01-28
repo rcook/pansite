@@ -1,25 +1,26 @@
 module PandocBuildTool.Render
-    ( pandocRender
+    ( pandocRenderer
     ) where
 
-import           Build
 import           Text.Blaze.Html.Renderer.String
 import           Text.Pandoc
 import           Text.Pandoc.XML
-import           Paths_pansite
+import           PandocBuildTool.Types
+import           Pansite
+import           System.FilePath
+import           Util
 
--- TODO: Eventually extract this as a configuration setting in app.yaml
-cssUrls :: [FilePath]
-cssUrls = ["css/buttondown.css"]
-
-pandocRender :: RenderOpts -> String -> String
-pandocRender (RenderOpts template) s =
-    let Right doc = readMarkdown def s -- TODO: Irrefutable pattern
-        -- TODO: Most, if not all, of these settings should be pulled from
-        -- app.yaml etc.
+pandocRenderer ::  PandocSettings2 -> ToolRunner
+pandocRenderer (PandocSettings2 mbTemplatePath vars) appDir inputPath outputPath = do
+    input <- readFileUtf8 inputPath
+    mbTemplate <- case mbTemplatePath of
+                    Nothing -> return Nothing
+                    Just templatePath -> Just <$> readFileUtf8 (appDir </> templatePath)
+    let Right doc = readMarkdown def input -- TODO: Irrefutable pattern
         writerOpts = def
-            { writerTemplate = Just template
-            , writerVariables = map (\x -> ("css", x)) cssUrls
-            , writerNumberSections = True
+            { writerTemplate = mbTemplate
+            , writerVariables = vars
+            , writerNumberSections = True -- TODO: Derive this from YAML
             }
-    in toEntities (renderHtml (writeHtml writerOpts doc))
+    let html = toEntities (renderHtml (writeHtml writerOpts doc))
+    writeFileUtf8 outputPath html

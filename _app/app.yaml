@@ -6,18 +6,19 @@ routes:
 
 targets:
 - path: ctp.html
-  build-tool: pandoc
+  tool: pandoc
   dependencies:
   - ctp.md
 - path: pcph.html
-  build-tool: pandoc
+  tool: pandoc
   dependencies:
   - pcph.md
 
-pandoc:
-- a: b
-- x: y
+build-tool-settings:
+  pandoc:
+    template-path: template.html
+    vars:
+    - [css, css/buttondown.css]
 
-copy:
-- a: b
-- x: y
+first-name: Richard
+last-name: Cook

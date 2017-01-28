@@ -10,12 +10,12 @@ Portability : portable
 
 module Pansite.AppConfig.Types
     ( AppConfig (..)
-    , BuildTool (..)
     , Route (..)
     , Target (..)
     ) where
 
-data AppConfig = AppConfig [Route] [Target] deriving Show
-data BuildTool = Copy | Pandoc deriving Show
+import           Pansite.Tool
+
+data AppConfig = AppConfig [Route] [Target] ToolRunnerMap
 data Route = Route [String] FilePath deriving Show
-data Target = Target FilePath BuildTool [FilePath] deriving Show
+data Target = Target FilePath ToolName [FilePath] deriving Show

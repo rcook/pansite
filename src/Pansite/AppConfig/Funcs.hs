@@ -1,31 +1,64 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Pansite.AppConfig.Funcs
-    ( AppConfig2 (..)
-    , appConfigParser
+    ( appConfigParser
     ) where
 
+import           Control.Monad
 import           Data.Aeson
 import           Data.Aeson.Types
 import           Data.Default
+import           Data.List
+import           Data.List.Split
 import           Data.Traversable
 import           Data.Yaml
 import           Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HashMap
+import           Data.Text (Text)
 import qualified Data.Text as Text
+import qualified Data.Vector as Vector
 import           Data.Yaml
 import           Pansite.AppConfig.Keys
+import           Pansite.AppConfig.Types
 import           Pansite.Tool
 
-data AppConfig2 = AppConfig2 String String ToolRunnerMap
+toolKey :: Text
+toolKey = "tool"
 
-appConfigParser :: [Tool] -> Value -> Parser AppConfig2
+dependenciesKey :: Text
+dependenciesKey = "dependencies"
+
+pathKey :: Text
+pathKey = "path"
+
+routesKey :: Text
+routesKey = "routes"
+
+targetKey :: Text
+targetKey = "target"
+
+targetsKey :: Text
+targetsKey = "targets"
+
+parseRoutePath :: String -> [String]
+parseRoutePath = splitOn "/"
+
+toRoutePath :: [String] -> String
+toRoutePath = intercalate "/"
+
+appConfigParser :: [Tool] -> Value -> Parser AppConfig
 appConfigParser tools = withObject "appConfig" $ \o -> do
-    firstName <- o .: firstNameKey
-    lastName <- o .: lastNameKey
+    let toolNames = map (\(Tool name _ _) -> name) tools
+    routesNode <- o .: routesKey
+    routes <- arrayParser "routes" routeParser routesNode
+    targetsNode <- o .: targetsKey
+    targets <- arrayParser "targets" (targetParser toolNames) targetsNode
     toolSettingsNode <- o .: buildToolSettingsKey
     toolSettings <- toolSettingsParser toolSettingsNode
-    case toolRunnersWithSettings tools toolSettings of
-        Error message -> fail message
-        Success toolRunners -> return $ AppConfig2 firstName lastName toolRunners
+    toolRunners <- case toolRunnersWithSettings tools toolSettings of
+                        Error message -> fail message
+                        Success toolRunners -> return toolRunners
+    return $ AppConfig routes targets toolRunners
 
 toolSettingsParser :: Value -> Parser [(String, Value)]
 toolSettingsParser = withObject "build-tool-settings" $ \o ->
@@ -45,3 +78,22 @@ toolRunnerWithSettings nameValueMap (Tool name parser runner) =
         Just value -> case parse parser value of
             Error message -> Error message
             Success s -> Success (name, runner s)
+
+arrayParser :: String -> (Value -> Parser a) -> Value -> Parser [a]
+arrayParser expected f = withArray expected $ \arr -> mapM f (Vector.toList arr)
+
+routeParser :: Value -> Parser Route
+routeParser = withObject "route" $ \o -> do
+    path <- parseRoutePath <$> (o .: pathKey)
+    target <- o .: targetKey
+    return $ Route path target
+
+targetParser :: [ToolName] -> Value -> Parser Target
+targetParser toolNames = withObject "target" $ \o -> do
+    path <- o .: pathKey
+    toolName <- o .: toolKey
+    unless
+        (toolName `elem` toolNames)
+        (fail $ "Unsupported build tool \"" ++ toolName ++ "\"")
+    dependencies <- o .:? dependenciesKey .!= []
+    return $ Target path toolName dependencies
