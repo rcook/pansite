@@ -66,6 +66,7 @@ executable pansite-app
                                 , PandocBuildTool.Parser
                                 , PandocBuildTool.Render
                                 , PandocBuildTool.Types
+                                , ToolSettings
                                 , Util
   build-depends:                  aeson
                                 , base
@@ -83,6 +84,7 @@ executable pansite-app
                                 , shake
                                 , text
                                 , time
+                                , unordered-containers
                                 , wai
                                 , wai-logger
                                 , warp

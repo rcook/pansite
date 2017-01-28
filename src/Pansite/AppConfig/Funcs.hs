@@ -1,4 +1,7 @@
-module Pansite.AppConfig.Funcs () where
+module Pansite.AppConfig.Funcs
+    ( AppConfig2 (..)
+    , appConfigParser
+    ) where
 
 import           Data.Aeson
 import           Data.Aeson.Types
@@ -12,9 +15,9 @@ import           Data.Yaml
 import           Pansite.AppConfig.Keys
 import           Pansite.Tool
 
-data AppConfig = AppConfig String String ToolRunnerMap
+data AppConfig2 = AppConfig2 String String ToolRunnerMap
 
-appConfigParser :: [Tool] -> Value -> Parser AppConfig
+appConfigParser :: [Tool] -> Value -> Parser AppConfig2
 appConfigParser tools = withObject "appConfig" $ \o -> do
     firstName <- o .: firstNameKey
     lastName <- o .: lastNameKey
@@ -22,7 +25,7 @@ appConfigParser tools = withObject "appConfig" $ \o -> do
     toolSettings <- toolSettingsParser toolSettingsNode
     case toolRunnersWithSettings tools toolSettings of
         Error message -> fail message
-        Success toolRunners -> return $ AppConfig firstName lastName toolRunners
+        Success toolRunners -> return $ AppConfig2 firstName lastName toolRunners
 
 toolSettingsParser :: Value -> Parser [(String, Value)]
 toolSettingsParser = withObject "build-tool-settings" $ \o ->

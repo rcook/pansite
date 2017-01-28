@@ -33,6 +33,7 @@ import           Pansite
 import           System.Directory
 import           System.FilePath
 import           System.Process
+import           ToolSettings
 import           Util
 
 runApp :: ApacheLogger -> ServerConfig -> ConfigInfo -> IO ()
@@ -85,6 +86,8 @@ app logger configInfoRef req f = do
         Nothing -> f $ responseLBS status200 [(hContentType, "text/plain")] "No such route"
 
 main :: IO ()
-main = parseOptions >>= \(Options serverConfig appDir outputDir) -> withStdoutLogger $ \logger -> do
-    configInfo <- readConfigInfo appDir outputDir
-    runApp logger serverConfig configInfo
+main = demoToolSettings >>
+    parseOptions >>=
+        \(Options serverConfig appDir outputDir) -> withStdoutLogger $ \logger -> do
+        configInfo <- readConfigInfo appDir outputDir
+        runApp logger serverConfig configInfo
