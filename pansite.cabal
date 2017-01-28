@@ -37,7 +37,8 @@ library
                                 , Pansite.TestServer.Types
                                 , Pansite.Tool
                                 , Pansite.Tool.Types
-  build-depends:                  base
+  build-depends:                  aeson
+                                , base
                                 , bytestring
                                 , containers
                                 , data-default
