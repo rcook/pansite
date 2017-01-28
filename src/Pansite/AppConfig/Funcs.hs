@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Pansite.AppConfig.Funcs () where
 
 import           Data.Aeson
@@ -11,15 +9,16 @@ import           Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as Text
 import           Data.Yaml
+import           Pansite.AppConfig.Keys
 import           Pansite.Tool
 
 data AppConfig = AppConfig String String ToolRunnerMap
 
 appConfigParser :: [Tool] -> Value -> Parser AppConfig
 appConfigParser tools = withObject "appConfig" $ \o -> do
-    firstName <- o .: "first-name"
-    lastName <- o .: "last-name"
-    toolSettingsNode <- o .: "build-tool-settings"
+    firstName <- o .: firstNameKey
+    lastName <- o .: lastNameKey
+    toolSettingsNode <- o .: buildToolSettingsKey
     toolSettings <- toolSettingsParser toolSettingsNode
     case toolRunnersWithSettings tools toolSettings of
         Error message -> fail message
