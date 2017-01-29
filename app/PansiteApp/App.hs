@@ -31,7 +31,7 @@ import           Pansite
 import           PansiteApp.Build
 import           PansiteApp.CommandLine
 import           PansiteApp.ConfigInfo
-import           PansiteApp.PandocBuildTool
+import           PansiteApp.PandocTool
 import           PansiteApp.Util
 import           System.Directory
 import           System.Exit

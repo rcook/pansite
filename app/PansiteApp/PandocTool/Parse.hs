@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module PansiteApp.PandocBuildTool.Parser
+module PansiteApp.PandocTool.Parse
     ( pandocParser
     , pandocSettingsParser
     ) where
@@ -8,8 +8,8 @@ module PansiteApp.PandocBuildTool.Parser
 import           Data.Aeson (withObject)
 import           Data.Text (Text (..))
 import           Data.Yaml
-import           PansiteApp.PandocBuildTool.Types
-import           PansiteApp.PandocBuildTool.Instances
+import           PansiteApp.PandocTool.Types
+import           PansiteApp.PandocTool.Instances
 
 pandocParser :: Value -> Parser PandocSettings
 pandocParser = withObject "pandoc" (.: pandocKey)

@@ -62,14 +62,14 @@ executable pansite-app
                                 , PansiteApp.ConfigInfo
                                 , PansiteApp.CopyTool
                                 , PansiteApp.CopyTool.Instances
-                                , PansiteApp.CopyTool.Parser
+                                , PansiteApp.CopyTool.Parse
                                 , PansiteApp.CopyTool.Render
                                 , PansiteApp.CopyTool.Types
-                                , PansiteApp.PandocBuildTool
-                                , PansiteApp.PandocBuildTool.Instances
-                                , PansiteApp.PandocBuildTool.Parser
-                                , PansiteApp.PandocBuildTool.Render
-                                , PansiteApp.PandocBuildTool.Types
+                                , PansiteApp.PandocTool
+                                , PansiteApp.PandocTool.Instances
+                                , PansiteApp.PandocTool.Parse
+                                , PansiteApp.PandocTool.Render
+                                , PansiteApp.PandocTool.Types
                                 , PansiteApp.Util
   build-depends:                  aeson
                                 , base

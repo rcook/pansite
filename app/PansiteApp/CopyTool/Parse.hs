@@ -1,4 +1,4 @@
-module PansiteApp.CopyTool.Parser (copySettingsParser) where
+module PansiteApp.CopyTool.Parse (copySettingsParser) where
 
 import           Data.Aeson (withObject)
 import           Data.Yaml

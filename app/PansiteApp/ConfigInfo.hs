@@ -23,10 +23,10 @@ import           Data.Time
 import           Data.Yaml
 import           Pansite
 import           PansiteApp.CopyTool.Instances
-import           PansiteApp.CopyTool.Parser
+import           PansiteApp.CopyTool.Parse
 import           PansiteApp.CopyTool.Render
-import           PansiteApp.PandocBuildTool.Parser
-import           PansiteApp.PandocBuildTool.Render
+import           PansiteApp.PandocTool.Parse
+import           PansiteApp.PandocTool.Render
 import           System.Directory
 import           System.FilePath
 
