@@ -3,7 +3,7 @@
 module PansiteApp.PandocTool.Parse (pandocSettingsParser) where
 
 import           Data.Aeson (withObject)
-import           Data.Text (Text (..))
+import           Data.Text (Text)
 import           Data.Yaml
 import           PansiteApp.PandocTool.Types
 

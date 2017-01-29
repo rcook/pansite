@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module PansiteApp.PandocTool.Instances () where
 
 import           Data.Default

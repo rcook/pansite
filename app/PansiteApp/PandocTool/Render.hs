@@ -1,6 +1,4 @@
-module PansiteApp.PandocTool.Render
-    ( pandocRenderer
-    ) where
+module PansiteApp.PandocTool.Render (pandocRenderer) where
 
 import           Text.Blaze.Html.Renderer.String
 import           Text.Pandoc
