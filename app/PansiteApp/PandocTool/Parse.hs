@@ -6,7 +6,6 @@ import           Data.Aeson (withObject)
 import           Data.Text (Text (..))
 import           Data.Yaml
 import           PansiteApp.PandocTool.Types
-import           PansiteApp.PandocTool.Instances
 
 templatePathKey :: Text
 templatePathKey = "template-path"

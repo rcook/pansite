@@ -3,8 +3,6 @@ module PansiteApp.PandocTool.Types
     , PandocVariable
     ) where
 
-import           Data.Default
-
 type PandocVariable = (String, String)
 
 data PandocSettings = PandocSettings

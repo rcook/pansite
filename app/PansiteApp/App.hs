@@ -13,17 +13,12 @@ Portability : portable
 module PansiteApp.App (appMain) where
 
 import           Control.Monad.IO.Class
-import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BL
-import qualified Data.HashMap.Strict as HashMap
-import           Data.Map (Map)
 import qualified Data.Map as Map
 import           Data.IORef
-import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import           Network.HTTP.Types
-import           Network.HTTP.Types.Header
 import           Network.Wai
 import           Network.Wai.Handler.Warp
 import           Network.Wai.Logger
@@ -31,12 +26,8 @@ import           Pansite
 import           PansiteApp.Build
 import           PansiteApp.CommandLine
 import           PansiteApp.ConfigInfo
-import           PansiteApp.PandocTool
 import           PansiteApp.Util
-import           System.Directory
-import           System.Exit
 import           System.FilePath
-import           System.Process
 
 runApp :: ApacheLogger -> ServerConfig -> ConfigInfo -> IO ()
 runApp logger (ServerConfig port) configInfo = do

@@ -11,13 +11,11 @@ import           Data.Default
 import           Data.List
 import           Data.List.Split
 import           Data.Traversable
-import           Data.Yaml
 import           Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HashMap
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Vector as Vector
-import           Data.Yaml
 import           Pansite.AppConfig.Keys
 import           Pansite.AppConfig.Types
 import           Pansite.Tool

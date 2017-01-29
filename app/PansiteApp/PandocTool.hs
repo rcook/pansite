@@ -5,7 +5,7 @@ module PansiteApp.PandocTool
     , module PansiteApp.PandocTool.Types
     ) where
 
-import           PansiteApp.PandocTool.Instances
+import           PansiteApp.PandocTool.Instances ()
 import           PansiteApp.PandocTool.Parse
 import           PansiteApp.PandocTool.Render
 import           PansiteApp.PandocTool.Types

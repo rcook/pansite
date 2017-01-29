@@ -3,13 +3,11 @@ module PansiteApp.Build
     ) where
 
 import           Control.Monad
-import           Data.Default
 import qualified Data.HashMap.Strict as HashMap
 import           Development.Shake
 import           Development.Shake.FilePath
 import           Pansite
 import           PansiteApp.ConfigInfo
-import           PansiteApp.Util
 
 -- TODO: Dependency paths won't work in the long term
 -- We need to distinguish between the primary input(s) and the dependencies
