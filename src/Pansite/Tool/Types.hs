@@ -2,6 +2,7 @@
 
 module Pansite.Tool.Types
     ( Tool (..)
+    , ToolContext (..)
     , ToolName
     , ToolRunner (..)
     , ToolRunnerMap (..)
@@ -11,9 +12,15 @@ import           Data.Default
 import           Data.HashMap.Strict (HashMap)
 import           Data.Yaml
 
+data ToolContext = ToolContext
+    { toolContextAppDir :: FilePath
+    , toolContextInputPath :: FilePath
+    , toolContextOutputPath :: FilePath
+    } deriving Show
+
 type ToolName = String
 
-type ToolRunner = FilePath -> FilePath -> FilePath -> IO ()
+type ToolRunner = ToolContext -> IO ()
 
 type ToolRunnerMap = HashMap String ToolRunner
 

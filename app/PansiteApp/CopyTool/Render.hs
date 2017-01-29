@@ -5,4 +5,4 @@ import           PansiteApp.CopyTool.Types
 import           System.Directory
 
 copyRenderer :: CopySettings -> ToolRunner
-copyRenderer _ _ inputPath outputPath = copyFile inputPath outputPath
+copyRenderer _ (ToolContext _ inputPath outputPath) = copyFile inputPath outputPath

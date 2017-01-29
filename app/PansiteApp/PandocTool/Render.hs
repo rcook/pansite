@@ -11,7 +11,7 @@ import           PansiteApp.Util
 import           System.FilePath
 
 pandocRenderer ::  PandocSettings2 -> ToolRunner
-pandocRenderer (PandocSettings2 mbTemplatePath vars) appDir inputPath outputPath = do
+pandocRenderer (PandocSettings2 mbTemplatePath vars) (ToolContext appDir inputPath outputPath) = do
     input <- readFileUtf8 inputPath
     mbTemplate <- case mbTemplatePath of
                     Nothing -> return Nothing

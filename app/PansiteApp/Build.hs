@@ -19,7 +19,7 @@ import           PansiteApp.Util
 runTool :: ToolRunner -> FilePath -> FilePath -> [FilePath] -> IO ()
 runTool toolRunner appDir outputPath inputPaths = do
     let inputPath = head inputPaths -- TODO: Unsafe, let's not do this
-    toolRunner appDir inputPath outputPath
+    toolRunner (ToolContext appDir inputPath outputPath)
 
 -- TODO: Pass some kind of map of renderers to support more than one build tool
 build :: ToolRunnerMap -> ConfigInfo -> FilePath -> IO ()
