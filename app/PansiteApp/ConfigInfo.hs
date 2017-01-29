@@ -32,6 +32,7 @@ data ConfigInfo = ConfigInfo
     , appYamlPath :: FilePath
     , appDir :: FilePath
     , outputDir :: FilePath
+    , shakeDir :: FilePath
     , appConfig :: AppConfig
     }
 

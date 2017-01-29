@@ -21,12 +21,13 @@ runTool toolRunner appDir outputPath inputPaths = do
 
 -- TODO: Pass some kind of map of renderers to support more than one build tool
 build :: ToolRunnerMap -> ConfigInfo -> FilePath -> IO ()
-build toolRunners (ConfigInfo _ _ appDir outputDir (AppConfig _ targets _)) target = shake shakeOptions { shakeFiles = outputDir } $ do
-    want [outputDir </> target]
+build toolRunners (ConfigInfo _ _ appDir outputDir shakeDir (AppConfig _ targets _)) target =
+    shake shakeOptions { shakeFiles = shakeDir } $ do
+        want [outputDir </> target]
 
-    forM_ targets $ \(Target path toolName dependencies) -> do
-        let Just toolRunner = HashMap.lookup toolName toolRunners
-        outputDir </> path %> \outputPath -> do
-            let dependencyPaths = (appDir </>) <$> dependencies
-            need dependencyPaths
-            liftIO $ runTool toolRunner appDir outputPath dependencyPaths
+        forM_ targets $ \(Target path toolName dependencies) -> do
+            let Just toolRunner = HashMap.lookup toolName toolRunners
+            outputDir </> path %> \outputPath -> do
+                let dependencyPaths = (appDir </>) <$> dependencies
+                need dependencyPaths
+                liftIO $ runTool toolRunner appDir outputPath dependencyPaths

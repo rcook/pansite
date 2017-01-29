@@ -80,6 +80,6 @@ app logger configInfoRef req f = do
 
 appMain :: IO ()
 appMain = parseOptions >>=
-        \(Options serverConfig appDir outputDir) -> withStdoutLogger $ \logger -> do
-        configInfo <- readConfigInfo appDir outputDir
+        \(Options serverConfig appDir outputDir shakeDir) -> withStdoutLogger $ \logger -> do
+        configInfo <- readConfigInfo appDir outputDir shakeDir
         runApp logger serverConfig configInfo

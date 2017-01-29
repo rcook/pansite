@@ -16,7 +16,7 @@ module PansiteApp.CommandLine
 import           Options.Applicative
 import           Pansite
 
-data Options = Options ServerConfig FilePath FilePath
+data Options = Options ServerConfig FilePath FilePath FilePath
 
 portArg :: Parser Port
 portArg = option auto
@@ -42,11 +42,23 @@ outputDirParser = strOption
     <> metavar "OUTPUTDIR"
     <> help "output directory")
 
+shakeDirParser :: Parser FilePath
+shakeDirParser = strOption
+    (long "shake-dir"
+    <> short 's'
+    <> value "_shake"
+    <> metavar "SHAKEDIR"
+    <> help "Shake directory")
+
 serverConfigParser :: Parser ServerConfig
 serverConfigParser = ServerConfig <$> portArg
 
 optionsParser :: Parser Options
-optionsParser = Options <$> serverConfigParser <*> appDirParser <*> outputDirParser
+optionsParser = Options
+    <$> serverConfigParser
+    <*> appDirParser
+    <*> outputDirParser
+    <*> shakeDirParser
 
 parseOptions :: IO Options
 parseOptions = execParser optionsInfo
