@@ -1,11 +1,11 @@
 module PansiteApp.CopyTool
-    ( module CopyTool.Instances
-    , module CopyTool.Parse
-    , module CopyTool.Render
-    , module CopyTool.Types
+    ( module PansiteApp.CopyTool.Instances
+    , module PansiteApp.CopyTool.Parse
+    , module PansiteApp.CopyTool.Render
+    , module PansiteApp.CopyTool.Types
     ) where
 
-import           CopyTool.Instances
-import           CopyTool.Parse
-import           CopyTool.Render
-import           CopyTool.Types
+import           PansiteApp.CopyTool.Instances
+import           PansiteApp.CopyTool.Parse
+import           PansiteApp.CopyTool.Render
+import           PansiteApp.CopyTool.Types

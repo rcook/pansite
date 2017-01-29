@@ -22,11 +22,8 @@ import qualified Data.HashMap.Strict as HashMap
 import           Data.Time
 import           Data.Yaml
 import           Pansite
-import           PansiteApp.CopyTool.Instances
-import           PansiteApp.CopyTool.Parse
-import           PansiteApp.CopyTool.Render
-import           PansiteApp.PandocTool.Parse
-import           PansiteApp.PandocTool.Render
+import           PansiteApp.CopyTool
+import           PansiteApp.PandocTool
 import           System.Directory
 import           System.FilePath
 
