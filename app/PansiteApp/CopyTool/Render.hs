@@ -1,7 +1,7 @@
-module CopyTool.Render (copyRenderer) where
+module PansiteApp.CopyTool.Render (copyRenderer) where
 
-import           CopyTool.Types
 import           Pansite
+import           PansiteApp.CopyTool.Types
 import           System.Directory
 
 copyRenderer :: CopySettings -> ToolRunner

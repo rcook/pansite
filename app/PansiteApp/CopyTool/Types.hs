@@ -1,4 +1,4 @@
-module CopyTool.Types
+module PansiteApp.CopyTool.Types
     ( CopySettings (..)
     ) where
 

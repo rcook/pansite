@@ -1,4 +1,4 @@
-module CopyTool
+module PansiteApp.CopyTool
     ( module CopyTool.Instances
     , module CopyTool.Parser
     , module CopyTool.Render

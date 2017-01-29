@@ -1,7 +1,7 @@
-module CopyTool.Instances () where
+module PansiteApp.CopyTool.Instances () where
 
-import           CopyTool.Types
 import           Data.Default
+import           PansiteApp.CopyTool.Types
 
 instance Default CopySettings where
     def = CopySettings

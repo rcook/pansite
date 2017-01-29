@@ -10,7 +10,7 @@ Portability : portable
 
 {-# LANGUAGE RecordWildCards #-}
 
-module ConfigInfo
+module PansiteApp.ConfigInfo
     ( ConfigInfo (..)
     , readConfigInfo
     , updateConfigInfo
@@ -21,12 +21,12 @@ import qualified Data.ByteString.Char8 as C8
 import qualified Data.HashMap.Strict as HashMap
 import           Data.Time
 import           Data.Yaml
-import           CopyTool.Instances
-import           CopyTool.Parser
-import           CopyTool.Render
-import           PandocBuildTool.Parser
-import           PandocBuildTool.Render
 import           Pansite
+import           PansiteApp.CopyTool.Instances
+import           PansiteApp.CopyTool.Parser
+import           PansiteApp.CopyTool.Render
+import           PansiteApp.PandocBuildTool.Parser
+import           PansiteApp.PandocBuildTool.Render
 import           System.Directory
 import           System.FilePath
 

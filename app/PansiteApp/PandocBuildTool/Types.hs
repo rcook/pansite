@@ -1,4 +1,4 @@
-module PandocBuildTool.Types
+module PansiteApp.PandocBuildTool.Types
     ( PandocSettings (..)
     , PandocSettings2 (..)
     , PandocVariable

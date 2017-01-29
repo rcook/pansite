@@ -1,4 +1,4 @@
-module Util
+module PansiteApp.Util
     ( readFileUtf8
     , readFileWithEncoding
     , writeFileUtf8

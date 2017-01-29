@@ -1,12 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module PandocBuildTool.Instances () where
+module PansiteApp.PandocBuildTool.Instances () where
 
 import           Control.Applicative
 import           Data.Default
 import           Data.Text (Text (..))
 import           Data.Yaml
-import           PandocBuildTool.Types
+import           PansiteApp.PandocBuildTool.Types
 
 instance FromJSON PandocSettings where
     parseJSON (Object v) = PandocSettings

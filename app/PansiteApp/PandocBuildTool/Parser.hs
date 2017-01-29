@@ -1,15 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module PandocBuildTool.Parser
+module PansiteApp.PandocBuildTool.Parser
     ( pandocParser
     , pandocSettingsParser
     ) where
 
 import           Data.Aeson (withObject)
 import           Data.Text (Text (..))
-import           PandocBuildTool.Types
-import           PandocBuildTool.Instances
 import           Data.Yaml
+import           PansiteApp.PandocBuildTool.Types
+import           PansiteApp.PandocBuildTool.Instances
 
 pandocParser :: Value -> Parser PandocSettings
 pandocParser = withObject "pandoc" (.: pandocKey)

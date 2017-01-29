@@ -1,14 +1,14 @@
-module PandocBuildTool.Render
+module PansiteApp.PandocBuildTool.Render
     ( pandocRenderer
     ) where
 
 import           Text.Blaze.Html.Renderer.String
 import           Text.Pandoc
 import           Text.Pandoc.XML
-import           PandocBuildTool.Types
 import           Pansite
+import           PansiteApp.PandocBuildTool.Types
+import           PansiteApp.Util
 import           System.FilePath
-import           Util
 
 pandocRenderer ::  PandocSettings2 -> ToolRunner
 pandocRenderer (PandocSettings2 mbTemplatePath vars) appDir inputPath outputPath = do

@@ -8,7 +8,7 @@ Stability   : experimental
 Portability : portable
 -}
 
-module CommandLine
+module PansiteApp.CommandLine
     ( Options (..)
     , parseOptions
     ) where
