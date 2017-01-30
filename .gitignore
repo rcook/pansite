@@ -1,3 +1,4 @@
 /.stack-work/
 /_output/
+/_shake/
 /_site/*.html

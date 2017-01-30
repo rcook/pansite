@@ -42,14 +42,15 @@ tools =
     , Tool "copy" copySettingsParser copyRenderer
     ]
 
-emptyConfigInfo :: UTCTime -> FilePath -> FilePath -> FilePath -> ConfigInfo
-emptyConfigInfo timestamp appYamlPath appDir outputDir =
-    ConfigInfo timestamp appYamlPath appDir outputDir (AppConfig [] [] HashMap.empty)
+emptyConfigInfo :: UTCTime -> FilePath -> FilePath -> FilePath -> FilePath -> ConfigInfo
+emptyConfigInfo timestamp appYamlPath appDir outputDir shakeDir =
+    ConfigInfo timestamp appYamlPath appDir outputDir shakeDir (AppConfig [] [] HashMap.empty)
 
-readConfigInfo :: FilePath -> FilePath -> IO ConfigInfo
-readConfigInfo appDir outputDir = do
+readConfigInfo :: FilePath -> FilePath -> FilePath -> IO ConfigInfo
+readConfigInfo appDir outputDir shakeDir = do
     appDir' <- canonicalizePath appDir
     outputDir' <- canonicalizePath outputDir
+    shakeDir' <- canonicalizePath shakeDir
 
     -- TODO: Use UTCTime field to determine if shakeVersion should be incremented
     let appYamlPath = appDir' </> "app.yaml"
@@ -64,22 +65,22 @@ readConfigInfo appDir outputDir = do
             case decodeEither' yaml of
                 Left e -> do
                     putStrLn $ "Parse exception: " ++ show e
-                    return $ emptyConfigInfo currentTime appYamlPath appDir' outputDir'
+                    return $ emptyConfigInfo currentTime appYamlPath appDir' outputDir' shakeDir'
                 Right value -> do
                     case parse (appConfigParser tools) value of
                         Error message -> do
                             putStrLn $ "Could not parse configuration file at " ++ appYamlPath ++ ": " ++ message
-                            return $ emptyConfigInfo currentTime appYamlPath appDir' outputDir'
-                        Success appConfig -> return $ ConfigInfo t appYamlPath appDir' outputDir' appConfig
+                            return $ emptyConfigInfo currentTime appYamlPath appDir' outputDir' shakeDir'
+                        Success appConfig -> return $ ConfigInfo t appYamlPath appDir' outputDir' shakeDir' appConfig
         else do
             putStrLn $ "Configuration file does not exist at " ++ appYamlPath
-            return $ emptyConfigInfo currentTime appYamlPath appDir' outputDir'
+            return $ emptyConfigInfo currentTime appYamlPath appDir' outputDir' shakeDir'
 
 updateConfigInfo :: ConfigInfo -> IO (Maybe ConfigInfo)
 updateConfigInfo ConfigInfo{..} = do
     t <- getModificationTime appYamlPath
     if (t > timestamp)
         then do
-            configInfo' <- readConfigInfo appDir outputDir
+            configInfo' <- readConfigInfo appDir outputDir shakeDir
             return $ Just configInfo'
         else return Nothing
