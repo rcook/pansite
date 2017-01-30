@@ -12,8 +12,6 @@ Portability : portable
 
 module PansiteApp.ConfigInfo
     ( ConfigInfo (..)
-    , makeAppPath
-    , makeOutputPath
     , makeTargetPath
     , readConfigInfo
     , updateConfigInfo
@@ -24,7 +22,6 @@ import qualified Data.ByteString.Char8 as C8
 import qualified Data.HashMap.Strict as HashMap
 import           Data.Time
 import           Data.Yaml
-import           Debug.Trace
 import           Pansite
 import           PansiteApp.CopyTool
 import           PansiteApp.PandocTool
@@ -44,15 +41,9 @@ data ConfigInfo = ConfigInfo
 outputDirMeta :: FilePath
 outputDirMeta = "$(@D)"
 
-makeAppPath :: ConfigInfo -> FilePath -> FilePath
-makeAppPath ConfigInfo{..} path = let x = appDir </> path; x' = trace ("x=" ++ x) x in x'
-
-makeOutputPath :: ConfigInfo -> FilePath -> FilePath
-makeOutputPath ConfigInfo{..} path = let x = outputDir </> path; x' = trace ("x=" ++ x) x in x'
-
 makeTargetPath :: ConfigInfo -> FilePath -> FilePath
 makeTargetPath ConfigInfo{..} path
-    | takeDirectory path == outputDirMeta = let p = outputDir </> skipDirectory path; p' = trace ("p=" ++ p) p in p'
+    | takeDirectory path == outputDirMeta = outputDir </> skipDirectory path
     | otherwise = appDir </> path
 
 tools :: [Tool]

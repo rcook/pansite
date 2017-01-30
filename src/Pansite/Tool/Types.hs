@@ -14,8 +14,7 @@ import           Data.HashMap.Strict (HashMap)
 import           Data.Yaml
 
 data ToolContext = ToolContext
-    { toolContextMakeAppPath :: FilePath -> FilePath -- TODO: Glorious hack!
-    , toolContextMakeOutputPath :: FilePath -> FilePath -- TODO: Glorious hack!
+    { toolContextMakeTargetPath :: FilePath -> FilePath -- TODO: Glorious hack!
     , toolContextInputPath :: FilePath
     , toolContextOutputPath :: FilePath
     }
