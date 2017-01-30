@@ -19,7 +19,7 @@ targets:
   dependencies:
   - pcph.md
 
-build-tool-settings:
+tool-settings:
   pandoc:
     template-path: template.html
     vars:

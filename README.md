@@ -24,21 +24,32 @@ This project is a prototype and, therefore, _should not be used for any real wor
 Currently Pansite is a trivial web app built on top of [Warp][warp-hackage]. Routes are defined in a `app.yaml` file using the following schema:
 
 ```yaml
+# $(@D) is an automatic variable meaning "the output directory" (a la GNU Make)
+# All other paths are resolved relative to this directory containing this file
+
 routes:
-- path: content/page0
-  target: page0.html
-- path: content/page1
-  target: page1.html
+- path: content/ctp
+  target: $(@D)/ctp.html
+- path: content/pcph
+  target: $(@D)/pcph.html
+- path: css/buttondown.css
+  target: buttondown.css
 
 targets:
-- path: page0.html
-  build-tool: pandoc
+- path: $(@D)/ctp.html
+  tool: pandoc
   dependencies:
-  - page0.md
-- path: page1.html
-  build-tool: pandoc
+  - ctp.md
+- path: $(@D)/pcph.html
+  tool: pandoc
   dependencies:
-  - page1.md
+  - pcph.md
+
+tool-settings:
+  pandoc:
+    template-path: template.html
+    vars:
+    - [css, css/buttondown.css]
 ```
 
 Each `path` entry defines a route that the web app will respond to. The `target` key defines the cached content file to return in response to this route.

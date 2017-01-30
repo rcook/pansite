@@ -1,10 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Pansite.AppConfig.Keys
-    ( buildToolSettingsKey
+    ( toolSettingsKey
     ) where
 
 import           Data.Text (Text)
 
-buildToolSettingsKey :: Text
-buildToolSettingsKey = "build-tool-settings"
+toolSettingsKey :: Text
+toolSettingsKey = "tool-settings"

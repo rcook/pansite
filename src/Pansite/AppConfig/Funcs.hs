@@ -51,7 +51,7 @@ appConfigParser tools = withObject "appConfig" $ \o -> do
     routes <- arrayParser "routes" routeParser routesNode
     targetsNode <- o .: targetsKey
     targets <- arrayParser "targets" (targetParser toolNames) targetsNode
-    toolSettingsNode <- o .: buildToolSettingsKey
+    toolSettingsNode <- o .: toolSettingsKey
     toolSettings <- toolSettingsParser toolSettingsNode
     toolRunners <- case toolRunnersWithSettings tools toolSettings of
                         Error message -> fail message
@@ -59,7 +59,7 @@ appConfigParser tools = withObject "appConfig" $ \o -> do
     return $ AppConfig routes targets toolRunners
 
 toolSettingsParser :: Value -> Parser [(String, Value)]
-toolSettingsParser = withObject "build-tool-settings" $ \o ->
+toolSettingsParser = withObject "tool-settings" $ \o ->
     for (HashMap.toList o) $ \(name, value) -> return (Text.unpack name, value)
 
 toolRunnersWithSettings :: [Tool] -> [(String, Value)] -> Result (HashMap String ToolRunner)
