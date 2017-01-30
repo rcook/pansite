@@ -14,6 +14,7 @@ module PansiteApp.ConfigInfo
     ( ConfigInfo (..)
     , makeAppPath
     , makeOutputPath
+    , makeTargetPath
     , readConfigInfo
     , updateConfigInfo
     ) where
@@ -23,9 +24,11 @@ import qualified Data.ByteString.Char8 as C8
 import qualified Data.HashMap.Strict as HashMap
 import           Data.Time
 import           Data.Yaml
+import           Debug.Trace
 import           Pansite
 import           PansiteApp.CopyTool
 import           PansiteApp.PandocTool
+import           PansiteApp.Util
 import           System.Directory
 import           System.FilePath
 
@@ -38,11 +41,19 @@ data ConfigInfo = ConfigInfo
     , appConfig :: AppConfig
     }
 
+outputDirMeta :: FilePath
+outputDirMeta = "$(@D)"
+
 makeAppPath :: ConfigInfo -> FilePath -> FilePath
-makeAppPath ConfigInfo{..} path = appDir </> path
+makeAppPath ConfigInfo{..} path = let x = appDir </> path; x' = trace ("x=" ++ x) x in x'
 
 makeOutputPath :: ConfigInfo -> FilePath -> FilePath
-makeOutputPath ConfigInfo{..} path = outputDir </> path
+makeOutputPath ConfigInfo{..} path = let x = outputDir </> path; x' = trace ("x=" ++ x) x in x'
+
+makeTargetPath :: ConfigInfo -> FilePath -> FilePath
+makeTargetPath ConfigInfo{..} path
+    | takeDirectory path == outputDirMeta = let p = outputDir </> skipDirectory path; p' = trace ("p=" ++ p) p in p'
+    | otherwise = appDir </> path
 
 tools :: [Tool]
 tools =

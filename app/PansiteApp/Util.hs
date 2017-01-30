@@ -1,10 +1,12 @@
 module PansiteApp.Util
     ( readFileUtf8
     , readFileWithEncoding
+    , skipDirectory
     , writeFileUtf8
     , writeFileWithEncoding
     ) where
 
+import           System.FilePath
 import           System.IO
 
 readFileWithEncoding :: TextEncoding -> FilePath -> IO String
@@ -24,3 +26,6 @@ writeFileWithEncoding encoding path content =
 
 writeFileUtf8 :: FilePath -> String -> IO ()
 writeFileUtf8 = writeFileWithEncoding utf8
+
+skipDirectory :: FilePath -> FilePath
+skipDirectory p = let d = takeDirectory p in drop (length d + 1) p

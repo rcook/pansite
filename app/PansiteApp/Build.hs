@@ -16,17 +16,17 @@ import           PansiteApp.ConfigInfo
 runTool :: ToolRunner -> ConfigInfo -> FilePath -> [FilePath] -> IO ()
 runTool toolRunner configInfo outputPath inputPaths = do
     let inputPath = head inputPaths -- TODO: Unsafe, let's not do this
-    toolRunner (ToolContext (makeAppPath configInfo) (makeOutputPath configInfo) inputPath outputPath)
+    toolRunner (ToolContext (makeAppPath configInfo) (makeTargetPath configInfo) inputPath outputPath)
 
 -- TODO: Pass some kind of map of renderers to support more than one build tool
 build :: ToolRunnerMap -> ConfigInfo -> FilePath -> IO ()
 build toolRunners configInfo@(ConfigInfo _ _ appDir outputDir shakeDir (AppConfig _ targets _)) target =
     shake shakeOptions { shakeFiles = shakeDir } $ do
-        want [makeOutputPath configInfo target]
+        want [makeTargetPath configInfo target]
 
         forM_ targets $ \(Target path toolName dependencies) -> do
             let Just toolRunner = HashMap.lookup toolName toolRunners
-            makeOutputPath configInfo path %> \outputPath -> do
+            makeTargetPath configInfo path %> \outputPath -> do
                 let dependencyPaths = (makeAppPath configInfo) <$> dependencies
                 need dependencyPaths
                 liftIO $ runTool toolRunner configInfo outputPath dependencyPaths

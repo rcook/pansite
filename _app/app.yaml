@@ -1,15 +1,20 @@
+# $(@D) is an automatic variable meaning "the output directory" (a la GNU Make)
+# All other paths are resolved relative to this directory containing this file
+
 routes:
 - path: content/ctp
-  target: ctp.html
+  target: $(@D)/ctp.html
 - path: content/pcph
-  target: pcph.html
+  target: $(@D)/pcph.html
+- path: css/buttondown.css
+  target: buttondown.css
 
 targets:
-- path: ctp.html
+- path: $(@D)/ctp.html
   tool: pandoc
   dependencies:
   - ctp.md
-- path: pcph.html
+- path: $(@D)/pcph.html
   tool: pandoc
   dependencies:
   - pcph.md
