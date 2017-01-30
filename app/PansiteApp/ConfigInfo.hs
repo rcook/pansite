@@ -12,6 +12,8 @@ Portability : portable
 
 module PansiteApp.ConfigInfo
     ( ConfigInfo (..)
+    , makeAppPath
+    , makeOutputPath
     , readConfigInfo
     , updateConfigInfo
     ) where
@@ -35,6 +37,12 @@ data ConfigInfo = ConfigInfo
     , shakeDir :: FilePath
     , appConfig :: AppConfig
     }
+
+makeAppPath :: ConfigInfo -> FilePath -> FilePath
+makeAppPath ConfigInfo{..} path = appDir </> path
+
+makeOutputPath :: ConfigInfo -> FilePath -> FilePath
+makeOutputPath ConfigInfo{..} path = outputDir </> path
 
 tools :: [Tool]
 tools =

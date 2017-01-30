@@ -6,14 +6,13 @@ import           Text.Pandoc.XML
 import           Pansite
 import           PansiteApp.PandocTool.Types
 import           PansiteApp.Util
-import           System.FilePath
 
 pandocRenderer ::  PandocSettings -> ToolRunner
-pandocRenderer (PandocSettings mbTemplatePath vars) (ToolContext appDir inputPath outputPath) = do
+pandocRenderer (PandocSettings mbTemplatePath vars) (ToolContext makeAppPath _ inputPath outputPath) = do
     input <- readFileUtf8 inputPath
     mbTemplate <- case mbTemplatePath of
                     Nothing -> return Nothing
-                    Just templatePath -> Just <$> readFileUtf8 (appDir </> templatePath)
+                    Just templatePath -> Just <$> readFileUtf8 (makeAppPath templatePath)
     let Right doc = readMarkdown def input -- TODO: Irrefutable pattern
         writerOpts = def
             { writerTemplate = mbTemplate

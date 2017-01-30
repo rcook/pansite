@@ -63,7 +63,7 @@ app logger configInfoRef req f = do
             -- Currently we're passing pandocRender even if the build tool is "copy" etc.
             build toolRunners configInfo target'
 
-            let targetOutputPath = (outputDir configInfo) </> target'
+            let targetOutputPath = makeOutputPath configInfo target'
             putStrLn $ "Read from " ++ targetOutputPath
 
             -- TODO: Eliminate this re-encoding

@@ -1,3 +1,4 @@
+-- TODO: Consider moving all of this into AppConfig modules
 {-# LANGUAGE ExistentialQuantification #-}
 
 module Pansite.Tool.Types
@@ -13,10 +14,11 @@ import           Data.HashMap.Strict (HashMap)
 import           Data.Yaml
 
 data ToolContext = ToolContext
-    { toolContextAppDir :: FilePath
+    { toolContextMakeAppPath :: FilePath -> FilePath -- TODO: Glorious hack!
+    , toolContextMakeOutputPath :: FilePath -> FilePath -- TODO: Glorious hack!
     , toolContextInputPath :: FilePath
     , toolContextOutputPath :: FilePath
-    } deriving Show
+    }
 
 type ToolName = String
 
