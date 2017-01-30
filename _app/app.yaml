@@ -24,6 +24,3 @@ build-tool-settings:
     template-path: template.html
     vars:
     - [css, css/buttondown.css]
-
-first-name: Richard
-last-name: Cook
