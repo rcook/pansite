@@ -19,7 +19,6 @@ runTool :: ToolRunner -> ConfigInfo -> FilePath -> [FilePath] -> [FilePath] -> I
 runTool toolRunner configInfo outputPath inputPaths dependencyPaths = do
     toolRunner (ToolContext outputPath inputPaths dependencyPaths)
 
--- TODO: Pass some kind of map of renderers to support more than one build tool
 build :: ToolRunnerMap -> ConfigInfo -> FilePath -> IO ()
 build toolRunners configInfo@(ConfigInfo _ _ appDir outputDir shakeDir (AppConfig _ targets _)) target =
     shake shakeOptions { shakeFiles = shakeDir } $ do
