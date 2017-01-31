@@ -2,7 +2,8 @@
 {-# LANGUAGE ExistentialQuantification #-}
 
 module Pansite.Tool.Types
-    ( Tool (..)
+    ( FilePathResolver
+    , Tool (..)
     , ToolContext (..)
     , ToolName
     , ToolRunner (..)
@@ -25,7 +26,9 @@ type ToolRunner = ToolContext -> IO ()
 
 type ToolRunnerMap = HashMap String ToolRunner
 
+type FilePathResolver = FilePath -> FilePath
+
 data Tool = forall a. Default a => Tool
     ToolName
-    ((FilePath -> FilePath) -> Value -> Parser a)
+    (FilePathResolver -> Value -> Parser a)
     (a -> ToolRunner)

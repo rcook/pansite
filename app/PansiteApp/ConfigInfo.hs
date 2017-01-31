@@ -41,12 +41,12 @@ data ConfigInfo = ConfigInfo
 outputDirMeta :: FilePath
 outputDirMeta = "$(@D)"
 
-makeTargetPath' :: FilePath -> FilePath -> FilePath -> FilePath
+makeTargetPath' :: FilePath -> FilePath -> FilePathResolver
 makeTargetPath' appDir outputDir path
     | takeDirectory path == outputDirMeta = outputDir </> skipDirectory path
     | otherwise = appDir </> path
 
-makeTargetPath :: ConfigInfo -> FilePath -> FilePath
+makeTargetPath :: ConfigInfo -> FilePathResolver
 makeTargetPath ConfigInfo{..} = makeTargetPath' appDir outputDir
 
 tools :: [Tool]

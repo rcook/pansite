@@ -49,8 +49,8 @@ parseRoutePath = splitOn "/"
 toRoutePath :: [String] -> String
 toRoutePath = intercalate "/"
 
-appConfigParser :: (FilePath -> FilePath) -> [Tool] -> Value -> Parser AppConfig
-appConfigParser makeTargetPath tools = withObject "appConfig" $ \o -> do
+appConfigParser :: FilePathResolver -> [Tool] -> Value -> Parser AppConfig
+appConfigParser resolveFilePath tools = withObject "appConfig" $ \o -> do
     let toolNames = map (\(Tool name _ _) -> name) tools
     routesNode <- o .: routesKey
     routes <- arrayParser "routes" routeParser routesNode
@@ -58,7 +58,7 @@ appConfigParser makeTargetPath tools = withObject "appConfig" $ \o -> do
     targets <- arrayParser "targets" (targetParser toolNames) targetsNode
     toolSettingsNode <- o .: toolSettingsKey
     toolSettings <- toolSettingsParser toolSettingsNode
-    toolRunners <- case toolRunnersWithSettings makeTargetPath tools toolSettings of
+    toolRunners <- case toolRunnersWithSettings resolveFilePath tools toolSettings of
                         Error message -> fail message
                         Success toolRunners -> return toolRunners
     return $ AppConfig routes targets toolRunners
@@ -67,18 +67,18 @@ toolSettingsParser :: Value -> Parser [(String, Value)]
 toolSettingsParser = withObject "tool-settings" $ \o ->
     for (HashMap.toList o) $ \(name, value) -> return (Text.unpack name, value)
 
-toolRunnersWithSettings :: (FilePath -> FilePath) -> [Tool] -> [(String, Value)] -> Result (HashMap String ToolRunner)
-toolRunnersWithSettings makeTargetPath tools nameValues =
+toolRunnersWithSettings :: FilePathResolver -> [Tool] -> [(String, Value)] -> Result (HashMap String ToolRunner)
+toolRunnersWithSettings resolveFilePath tools nameValues =
     let nameValueMap = HashMap.fromList nameValues
-    in case traverse (toolRunnerWithSettings makeTargetPath nameValueMap) tools of
+    in case traverse (toolRunnerWithSettings resolveFilePath nameValueMap) tools of
         Error message -> Error message
         Success s -> Success $ HashMap.fromList s
 
-toolRunnerWithSettings :: (FilePath -> FilePath) -> HashMap String Value -> Tool -> Result (String, ToolRunner)
-toolRunnerWithSettings makeTargetPath nameValueMap (Tool name parser runner) =
+toolRunnerWithSettings :: FilePathResolver -> HashMap String Value -> Tool -> Result (String, ToolRunner)
+toolRunnerWithSettings resolveFilePath nameValueMap (Tool name parser runner) =
     case HashMap.lookup name nameValueMap of
         Nothing -> Success (name, def)
-        Just value -> case parse (parser makeTargetPath) value of
+        Just value -> case parse (parser resolveFilePath) value of
             Error message -> Error message
             Success s -> Success (name, runner s)
 
