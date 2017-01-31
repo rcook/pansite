@@ -11,7 +11,7 @@ import           PansiteApp.PandocTool.Types
 import           PansiteApp.Util
 
 pandocRenderer ::  PandocSettings -> ToolRunner
-pandocRenderer (PandocSettings mbTemplatePath vars) ToolContext{..} = do
+pandocRenderer (PandocSettings mbTemplatePath vars numberSections) ToolContext{..} = do
     when -- TODO: Should support multiple inputs
         (length toolContextInputPaths /= 1)
         (error "Pandoc tool currently supports exactly one input")
@@ -23,7 +23,7 @@ pandocRenderer (PandocSettings mbTemplatePath vars) ToolContext{..} = do
         writerOpts = def
             { writerTemplate = mbTemplate
             , writerVariables = vars
-            , writerNumberSections = True -- TODO: Derive this from YAML
+            , writerNumberSections = numberSections
             }
     let html = toEntities (renderHtml (writeHtml writerOpts doc))
     writeFileUtf8 toolContextOutputPath html

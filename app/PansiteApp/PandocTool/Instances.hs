@@ -4,4 +4,4 @@ import           Data.Default
 import           PansiteApp.PandocTool.Types
 
 instance Default PandocSettings where
-    def = PandocSettings Nothing []
+    def = PandocSettings Nothing [] False

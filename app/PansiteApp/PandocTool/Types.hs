@@ -8,4 +8,5 @@ type PandocVariable = (String, String)
 data PandocSettings = PandocSettings
     (Maybe FilePath)
     [PandocVariable]
+    Bool
     deriving Show

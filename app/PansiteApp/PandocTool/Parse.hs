@@ -8,6 +8,9 @@ import           Data.Yaml
 import           Pansite
 import           PansiteApp.PandocTool.Types
 
+numberSectionsKey :: Text
+numberSectionsKey = "number-sections"
+
 templatePathKey :: Text
 templatePathKey = "template-path"
 
@@ -19,4 +22,5 @@ pandocSettingsParser resolveFilePath = withObject "pandoc" $ \o -> do
     mbTemplatePathTemp <- o .:? templatePathKey
     let mbTemplatePath = resolveFilePath <$> mbTemplatePathTemp
     vars <- o .:? varsKey .!= []
-    return $ PandocSettings mbTemplatePath vars
+    numberSections <- o .:? numberSectionsKey .!= False
+    return $ PandocSettings mbTemplatePath vars numberSections

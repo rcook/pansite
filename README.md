@@ -38,15 +38,20 @@ routes:
 targets:
 - path: $(@D)/ctp.html
   tool: pandoc
-  dependencies:
+  inputs:
   - ctp.md
+  dependencies:
+  - app.yaml
 - path: $(@D)/pcph.html
   tool: pandoc
-  dependencies:
+  inputs:
   - pcph.md
+  dependencies:
+  - app.yaml
 
 tool-settings:
   pandoc:
+    number-sections: true
     template-path: template.html
     vars:
     - [css, css/buttondown.css]
