@@ -1,3 +1,13 @@
+{-|
+Module      : Pansite.Tool.Types
+Description : Types Pansite external tool support
+Copyright   : (C) Richard Cook, 2017
+Licence     : MIT
+Maintainer  : rcook@rcook.org
+Stability   : experimental
+Portability : portable
+-}
+
 -- TODO: Consider moving all of this into AppConfig modules
 {-# LANGUAGE ExistentialQuantification #-}
 

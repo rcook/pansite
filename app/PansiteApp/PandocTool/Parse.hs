@@ -1,3 +1,13 @@
+{-|
+Module      : PansiteApp.PandocTool.Parse
+Description : Pandoc parser
+Copyright   : (C) Richard Cook, 2017
+Licence     : MIT
+Maintainer  : rcook@rcook.org
+Stability   : experimental
+Portability : portable
+-}
+
 {-# LANGUAGE OverloadedStrings #-}
 
 module PansiteApp.PandocTool.Parse (pandocSettingsParser) where

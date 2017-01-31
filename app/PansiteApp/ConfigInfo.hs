@@ -1,5 +1,5 @@
 {-|
-Module      : ConfigInfo
+Module      : PansiteApp.ConfigInfo
 Description : Configuration info for Pansite app
 Copyright   : (C) Richard Cook, 2017
 Licence     : MIT

@@ -1,6 +1,6 @@
 {-|
-Module      : Main
-Description : Main entrypoint for Pansite app
+Module      : PansiteApp.App
+Description : Main entrypoint for Pansite application
 Copyright   : (C) Richard Cook, 2017
 Licence     : MIT
 Maintainer  : rcook@rcook.org

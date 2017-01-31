@@ -1,5 +1,5 @@
 {-|
-Module      : Pansite.Config
+Module      : Pansite.Tool
 Description : Umbrella module for Pansite external tool support
 Copyright   : (C) Richard Cook, 2017
 Licence     : MIT

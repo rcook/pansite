@@ -1,5 +1,5 @@
 {-|
-Module      : CommandLine
+Module      : PansiteApp.CommandLine
 Description : Command-line parsers for Pansite app
 Copyright   : (C) Richard Cook, 2017
 Licence     : MIT

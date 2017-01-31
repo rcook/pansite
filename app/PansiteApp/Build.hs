@@ -1,3 +1,13 @@
+{-|
+Module      : PansiteApp.Build
+Description : Shake build function
+Copyright   : (C) Richard Cook, 2017
+Licence     : MIT
+Maintainer  : rcook@rcook.org
+Stability   : experimental
+Portability : portable
+-}
+
 {-# LANGUAGE RecordWildCards #-}
 
 module PansiteApp.Build (build) where
