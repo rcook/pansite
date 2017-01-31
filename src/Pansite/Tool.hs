@@ -9,7 +9,9 @@ Portability : portable
 -}
 
 module Pansite.Tool
-    ( module Pansite.Tool.Types
+    ( module Pansite.Tool.Funcs
+    , module Pansite.Tool.Types
     ) where
 
-import Pansite.Tool.Types
+import           Pansite.Tool.Funcs
+import           Pansite.Tool.Types

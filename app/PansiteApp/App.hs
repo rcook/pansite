@@ -47,30 +47,24 @@ app logger configInfoRef req f = do
                             liftIO $ atomicWriteIORef configInfoRef configInfo'
                             return configInfo'
 
-    let (ConfigInfo timestamp _ _ _ _ appConfig@(AppConfig routes _ toolRunners)) = configInfo
+    let (ConfigInfo timestamp _ _ _ _ app@(App routes _)) = configInfo
 
     -- TODO: Let's not rebuild this on every request
-    let m = Map.fromList (map (\(Route paths sourcePath) -> (map Text.pack paths, Text.pack sourcePath)) routes)
+    let m = Map.fromList (map (\(Route ps targetPath) -> (map Text.pack ps, targetPath)) routes)
 
     case Map.lookup (pathInfo req) m of
-        Just target -> do
+        Just targetPath -> do
             liftIO $ logger req status200 (Just 0)
 
-            -- TODO: Eliminate this re-encoding
-            let target' = Text.unpack target
+            build configInfo targetPath
 
-            -- TODO: Come up with some mechanism to pass multiple build tools
-            -- Currently we're passing pandocRender even if the build tool is "copy" etc.
-            build toolRunners configInfo target'
-
-            let targetOutputPath = makeTargetPath configInfo target'
-            putStrLn $ "Read from " ++ targetOutputPath
+            putStrLn $ "Read from " ++ targetPath
 
             -- TODO: Eliminate this re-encoding
-            content <- Text.pack <$> readFileUtf8 targetOutputPath
+            content <- Text.pack <$> readFileUtf8 targetPath
 
             -- TODO: Ugh. Let's make this less hacky. It works for now though.
-            let contentType = case (takeExtension targetOutputPath) of
+            let contentType = case (takeExtension targetPath) of
                                 ".css" -> "text/css; charset=utf-8"
                                 ".html" -> "text/html; charset=utf-8"
                                 _ -> "text/plain; charset=utf-8"

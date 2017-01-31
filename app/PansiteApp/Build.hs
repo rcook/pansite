@@ -13,21 +13,22 @@ Portability : portable
 module PansiteApp.Build (build) where
 
 import           Control.Monad
-import qualified Data.HashMap.Strict as HashMap
 import           Development.Shake
 import           Pansite
 import           PansiteApp.ConfigInfo
 
-build :: ToolRunnerMap -> ConfigInfo -> FilePath -> IO ()
-build toolRunners configInfo@(ConfigInfo _ _ _ _ shakeDir (AppConfig _ targets _)) target =
+build :: ConfigInfo -> FilePath -> IO ()
+build (ConfigInfo _ _ _ _ shakeDir (App _ targets)) targetPath =
     shake shakeOptions { shakeFiles = shakeDir } $ do
-        want [makeTargetPath configInfo target]
+        liftIO $ putStrLn ("want: " ++ targetPath)
+        want [targetPath]
 
-        forM_ targets $ \Target{..} -> do
-            let Just toolRunner = HashMap.lookup targetTool toolRunners
-            makeTargetPath configInfo targetPath %> \outputPath -> do
-                let inputPaths = (makeTargetPath configInfo) <$> targetInputs
-                    dependencyPaths = (makeTargetPath configInfo) <$> targetDependencies
+        forM_ targets $ \(Target path toolConfig inputPaths dependencyPaths) -> do
+            liftIO $ putStrLn ("rule: " ++ path)
+            path %> \outputPath -> do
+                liftIO $ putStrLn ("need: " ++ show inputPaths)
                 need inputPaths
+                liftIO $ putStrLn ("need: " ++ show dependencyPaths)
                 need dependencyPaths
-                liftIO $ toolRunner (ToolContext outputPath inputPaths dependencyPaths)
+                let ctx = ToolContext outputPath inputPaths dependencyPaths
+                liftIO $ toolConfigRunner ctx toolConfig

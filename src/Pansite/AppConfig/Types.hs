@@ -8,14 +8,9 @@ Stability   : experimental
 Portability : portable
 -}
 
-module Pansite.AppConfig.Types
-    ( AppConfig (..)
-    , Route (..)
-    , Target (..)
-    ) where
+module Pansite.AppConfig.Types () where
 
-import           Pansite.Tool
-
+{-
 data AppConfig = AppConfig [Route] [Target] ToolRunnerMap
 data Route = Route [String] FilePath deriving Show
 data Target = Target
@@ -24,3 +19,4 @@ data Target = Target
     , targetInputs :: [FilePath]
     , targetDependencies :: [FilePath]
     }
+-}

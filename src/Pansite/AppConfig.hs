@@ -8,10 +8,4 @@ Stability   : experimental
 Portability : portable
 -}
 
-module Pansite.AppConfig
-    ( module Pansite.AppConfig.Funcs
-    , module Pansite.AppConfig.Types
-    ) where
-
-import Pansite.AppConfig.Funcs
-import Pansite.AppConfig.Types
+module Pansite.AppConfig () where

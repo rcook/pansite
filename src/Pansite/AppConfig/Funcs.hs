@@ -10,10 +10,9 @@ Portability : portable
 
 {-# LANGUAGE OverloadedStrings #-}
 
-module Pansite.AppConfig.Funcs
-    ( appConfigParser
-    ) where
+module Pansite.AppConfig.Funcs () where
 
+{-
 import           Control.Monad
 import           Data.Aeson
 import           Data.Aeson.Types
@@ -111,3 +110,4 @@ targetParser toolNames = withObject "target" $ \o -> do
     inputs <- o .:? inputsKey .!= []
     dependencies <- o .:? dependenciesKey .!= []
     return $ Target path toolName inputs dependencies
+-}

@@ -9,15 +9,13 @@ Portability : portable
 -}
 
 module Pansite
-    ( module Pansite.AppConfig
-    , module Pansite.Event
+    ( module Pansite.Event
     , module Pansite.IO
     , module Pansite.SafeUtil
     , module Pansite.TestServer
     , module Pansite.Tool
     ) where
 
-import Pansite.AppConfig
 import Pansite.Event
 import Pansite.IO
 import Pansite.SafeUtil

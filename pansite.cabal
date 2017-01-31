@@ -34,6 +34,7 @@ library
                                 , Pansite.TestServer.Funcs
                                 , Pansite.TestServer.Types
                                 , Pansite.Tool
+                                , Pansite.Tool.Funcs
                                 , Pansite.Tool.Types
   build-depends:                  aeson
                                 , base
@@ -60,11 +61,13 @@ executable pansite-app
                                 , PansiteApp.CommandLine
                                 , PansiteApp.ConfigInfo
                                 , PansiteApp.CopyTool
+                                , PansiteApp.CopyTool.Funcs
                                 , PansiteApp.CopyTool.Instances
                                 , PansiteApp.CopyTool.Parse
                                 , PansiteApp.CopyTool.Render
                                 , PansiteApp.CopyTool.Types
                                 , PansiteApp.PandocTool
+                                , PansiteApp.PandocTool.Funcs
                                 , PansiteApp.PandocTool.Instances
                                 , PansiteApp.PandocTool.Parse
                                 , PansiteApp.PandocTool.Render
@@ -87,6 +90,7 @@ executable pansite-app
                                 , text
                                 , time
                                 , unordered-containers
+                                , vector
                                 , wai
                                 , wai-logger
                                 , warp

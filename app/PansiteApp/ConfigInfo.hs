@@ -12,16 +12,11 @@ Portability : portable
 
 module PansiteApp.ConfigInfo
     ( ConfigInfo (..)
-    , makeTargetPath
     , readConfigInfo
     , updateConfigInfo
     ) where
 
-import           Data.Aeson.Types
-import qualified Data.ByteString.Char8 as C8
-import qualified Data.HashMap.Strict as HashMap
 import           Data.Time
-import           Data.Yaml
 import           Pansite
 import           PansiteApp.CopyTool
 import           PansiteApp.PandocTool
@@ -35,35 +30,27 @@ data ConfigInfo = ConfigInfo
     , appDir :: FilePath
     , outputDir :: FilePath
     , shakeDir :: FilePath
-    , appConfig :: AppConfig
+    , ciApp :: App
     }
 
 outputDirMeta :: FilePath
 outputDirMeta = "$(@D)"
 
-makeTargetPath' :: FilePath -> FilePath -> FilePathResolver
-makeTargetPath' appDir outputDir path
+resolveFilePath :: FilePath -> FilePath -> FilePathResolver
+resolveFilePath appDir outputDir path
     | takeDirectory path == outputDirMeta = outputDir </> skipDirectory path
     | otherwise = appDir </> path
 
-makeTargetPath :: ConfigInfo -> FilePathResolver
-makeTargetPath ConfigInfo{..} = makeTargetPath' appDir outputDir
-
-tools :: [Tool]
-tools =
-    [ Tool "pandoc" pandocSettingsParser pandocRenderer
-    , Tool "copy" copySettingsParser copyRenderer
-    ]
-
 emptyConfigInfo :: UTCTime -> FilePath -> FilePath -> FilePath -> FilePath -> ConfigInfo
 emptyConfigInfo timestamp appYamlPath appDir outputDir shakeDir =
-    ConfigInfo timestamp appYamlPath appDir outputDir shakeDir (AppConfig [] [] HashMap.empty)
+    ConfigInfo timestamp appYamlPath appDir outputDir shakeDir (App [] [])
 
 readConfigInfo :: FilePath -> FilePath -> FilePath -> IO ConfigInfo
 readConfigInfo appDir outputDir shakeDir = do
     appDir' <- canonicalizePath appDir
     outputDir' <- canonicalizePath outputDir
     shakeDir' <- canonicalizePath shakeDir
+    let ctx = ParserContext (resolveFilePath appDir' outputDir')
 
     -- TODO: Use UTCTime field to determine if shakeVersion should be incremented
     let appYamlPath = appDir' </> "app.yaml"
@@ -74,17 +61,12 @@ readConfigInfo appDir outputDir shakeDir = do
         then do
             putStrLn $ "Getting timestamp for configuration file " ++ appYamlPath
             t <- getModificationTime appYamlPath
-            yaml <- C8.readFile appYamlPath
-            case decodeEither' yaml of
-                Left e -> do
-                    putStrLn $ "Parse exception: " ++ show e
+            mbApp <- readApp ctx [copyToolSpec, pandocToolSpec] appYamlPath
+            case mbApp of
+                Left message -> do
+                    putStrLn $ "Could not parse configuration file at " ++ appYamlPath ++ ": " ++ message
                     return $ emptyConfigInfo currentTime appYamlPath appDir' outputDir' shakeDir'
-                Right value -> do
-                    case parse (appConfigParser (makeTargetPath' appDir' outputDir') tools) value of
-                        Error message -> do
-                            putStrLn $ "Could not parse configuration file at " ++ appYamlPath ++ ": " ++ message
-                            return $ emptyConfigInfo currentTime appYamlPath appDir' outputDir' shakeDir'
-                        Success appConfig -> return $ ConfigInfo t appYamlPath appDir' outputDir' shakeDir' appConfig
+                Right app -> return $ ConfigInfo t appYamlPath appDir' outputDir' shakeDir' app
         else do
             putStrLn $ "Configuration file does not exist at " ++ appYamlPath
             return $ emptyConfigInfo currentTime appYamlPath appDir' outputDir' shakeDir'
