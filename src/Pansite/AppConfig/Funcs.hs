@@ -16,15 +16,14 @@ import qualified Data.HashMap.Strict as HashMap
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Vector as Vector
-import           Pansite.AppConfig.Keys
 import           Pansite.AppConfig.Types
 import           Pansite.Tool
 
-toolKey :: Text
-toolKey = "tool"
-
 dependenciesKey :: Text
 dependenciesKey = "dependencies"
+
+inputsKey :: Text
+inputsKey = "inputs"
 
 pathKey :: Text
 pathKey = "path"
@@ -38,14 +37,20 @@ targetKey = "target"
 targetsKey :: Text
 targetsKey = "targets"
 
+toolKey :: Text
+toolKey = "tool"
+
+toolSettingsKey :: Text
+toolSettingsKey = "tool-settings"
+
 parseRoutePath :: String -> [String]
 parseRoutePath = splitOn "/"
 
 toRoutePath :: [String] -> String
 toRoutePath = intercalate "/"
 
-appConfigParser :: [Tool] -> Value -> Parser AppConfig
-appConfigParser tools = withObject "appConfig" $ \o -> do
+appConfigParser :: (FilePath -> FilePath) -> [Tool] -> Value -> Parser AppConfig
+appConfigParser makeTargetPath tools = withObject "appConfig" $ \o -> do
     let toolNames = map (\(Tool name _ _) -> name) tools
     routesNode <- o .: routesKey
     routes <- arrayParser "routes" routeParser routesNode
@@ -53,7 +58,7 @@ appConfigParser tools = withObject "appConfig" $ \o -> do
     targets <- arrayParser "targets" (targetParser toolNames) targetsNode
     toolSettingsNode <- o .: toolSettingsKey
     toolSettings <- toolSettingsParser toolSettingsNode
-    toolRunners <- case toolRunnersWithSettings tools toolSettings of
+    toolRunners <- case toolRunnersWithSettings makeTargetPath tools toolSettings of
                         Error message -> fail message
                         Success toolRunners -> return toolRunners
     return $ AppConfig routes targets toolRunners
@@ -62,18 +67,18 @@ toolSettingsParser :: Value -> Parser [(String, Value)]
 toolSettingsParser = withObject "tool-settings" $ \o ->
     for (HashMap.toList o) $ \(name, value) -> return (Text.unpack name, value)
 
-toolRunnersWithSettings :: [Tool] -> [(String, Value)] -> Result (HashMap String ToolRunner)
-toolRunnersWithSettings tools nameValues =
+toolRunnersWithSettings :: (FilePath -> FilePath) -> [Tool] -> [(String, Value)] -> Result (HashMap String ToolRunner)
+toolRunnersWithSettings makeTargetPath tools nameValues =
     let nameValueMap = HashMap.fromList nameValues
-    in case traverse (toolRunnerWithSettings nameValueMap) tools of
+    in case traverse (toolRunnerWithSettings makeTargetPath nameValueMap) tools of
         Error message -> Error message
         Success s -> Success $ HashMap.fromList s
 
-toolRunnerWithSettings :: HashMap String Value -> Tool -> Result (String, ToolRunner)
-toolRunnerWithSettings nameValueMap (Tool name parser runner) =
+toolRunnerWithSettings :: (FilePath -> FilePath) -> HashMap String Value -> Tool -> Result (String, ToolRunner)
+toolRunnerWithSettings makeTargetPath nameValueMap (Tool name parser runner) =
     case HashMap.lookup name nameValueMap of
         Nothing -> Success (name, def)
-        Just value -> case parse parser value of
+        Just value -> case parse (parser makeTargetPath) value of
             Error message -> Error message
             Success s -> Success (name, runner s)
 
@@ -93,5 +98,6 @@ targetParser toolNames = withObject "target" $ \o -> do
     unless
         (toolName `elem` toolNames)
         (fail $ "Unsupported build tool \"" ++ toolName ++ "\"")
+    inputs <- o .:? inputsKey .!= []
     dependencies <- o .:? dependenciesKey .!= []
-    return $ Target path toolName dependencies
+    return $ Target path toolName inputs dependencies

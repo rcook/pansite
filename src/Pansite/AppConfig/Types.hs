@@ -18,4 +18,9 @@ import           Pansite.Tool
 
 data AppConfig = AppConfig [Route] [Target] ToolRunnerMap
 data Route = Route [String] FilePath deriving Show
-data Target = Target FilePath ToolName [FilePath] deriving Show
+data Target = Target
+    { targetPath :: FilePath
+    , targetTool :: ToolName
+    , targetInputs :: [FilePath]
+    , targetDependencies :: [FilePath]
+    }

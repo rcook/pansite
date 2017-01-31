@@ -12,12 +12,14 @@ routes:
 targets:
 - path: $(@D)/ctp.html
   tool: pandoc
-  dependencies:
+  inputs:
   - ctp.md
 - path: $(@D)/pcph.html
   tool: pandoc
-  dependencies:
+  inputs:
   - pcph.md
+  dependencies:
+  - other.md
 
 tool-settings:
   pandoc:

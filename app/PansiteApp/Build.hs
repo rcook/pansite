@@ -1,3 +1,5 @@
+{-# LANGUAGE RecordWildCards #-}
+
 module PansiteApp.Build
     ( build
     ) where
@@ -13,10 +15,9 @@ import           PansiteApp.ConfigInfo
 -- In the case of Pandoc we should only pass the former on the command line
 -- Right now, we'll only handle a single input hence the unsafe use of "head"
 -- which we should remove in the future
-runTool :: ToolRunner -> ConfigInfo -> FilePath -> [FilePath] -> IO ()
-runTool toolRunner configInfo outputPath inputPaths = do
-    let inputPath = head inputPaths -- TODO: Unsafe, let's not do this
-    toolRunner (ToolContext (makeTargetPath configInfo) inputPath outputPath)
+runTool :: ToolRunner -> ConfigInfo -> FilePath -> [FilePath] -> [FilePath] -> IO ()
+runTool toolRunner configInfo outputPath inputPaths dependencyPaths = do
+    toolRunner (ToolContext outputPath inputPaths dependencyPaths)
 
 -- TODO: Pass some kind of map of renderers to support more than one build tool
 build :: ToolRunnerMap -> ConfigInfo -> FilePath -> IO ()
@@ -24,9 +25,11 @@ build toolRunners configInfo@(ConfigInfo _ _ appDir outputDir shakeDir (AppConfi
     shake shakeOptions { shakeFiles = shakeDir } $ do
         want [makeTargetPath configInfo target]
 
-        forM_ targets $ \(Target path toolName dependencies) -> do
-            let Just toolRunner = HashMap.lookup toolName toolRunners
-            makeTargetPath configInfo path %> \outputPath -> do
-                let dependencyPaths = (makeTargetPath configInfo) <$> dependencies
+        forM_ targets $ \Target{..} -> do
+            let Just toolRunner = HashMap.lookup targetTool toolRunners
+            makeTargetPath configInfo targetPath %> \outputPath -> do
+                let inputPaths = (makeTargetPath configInfo) <$> targetInputs
+                    dependencyPaths = (makeTargetPath configInfo) <$> targetDependencies
+                need inputPaths
                 need dependencyPaths
-                liftIO $ runTool toolRunner configInfo outputPath dependencyPaths
+                liftIO $ runTool toolRunner configInfo outputPath inputPaths dependencyPaths

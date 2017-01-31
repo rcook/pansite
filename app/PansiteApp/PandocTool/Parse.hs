@@ -13,7 +13,9 @@ templatePathKey = "template-path"
 varsKey :: Text
 varsKey = "vars"
 
-pandocSettingsParser :: Value -> Parser PandocSettings
-pandocSettingsParser = withObject "pandoc" $ \o -> PandocSettings
-    <$> o .:? templatePathKey
-    <*> o .:? varsKey .!= []
+pandocSettingsParser :: (FilePath -> FilePath) -> Value -> Parser PandocSettings
+pandocSettingsParser makeTargetPath = withObject "pandoc" $ \o -> do
+    mbTemplatePathTemp <- o .:? templatePathKey
+    let mbTemplatePath = makeTargetPath <$> mbTemplatePathTemp
+    vars <- o .:? varsKey .!= []
+    return $ PandocSettings mbTemplatePath vars

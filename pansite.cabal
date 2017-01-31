@@ -24,7 +24,6 @@ library
   exposed-modules:                Pansite
   other-modules:                  Pansite.AppConfig
                                 , Pansite.AppConfig.Funcs
-                                , Pansite.AppConfig.Keys
                                 , Pansite.AppConfig.Types
                                 , Pansite.Event
                                 , Pansite.IO

@@ -41,10 +41,13 @@ data ConfigInfo = ConfigInfo
 outputDirMeta :: FilePath
 outputDirMeta = "$(@D)"
 
-makeTargetPath :: ConfigInfo -> FilePath -> FilePath
-makeTargetPath ConfigInfo{..} path
+makeTargetPath' :: FilePath -> FilePath -> FilePath -> FilePath
+makeTargetPath' appDir outputDir path
     | takeDirectory path == outputDirMeta = outputDir </> skipDirectory path
     | otherwise = appDir </> path
+
+makeTargetPath :: ConfigInfo -> FilePath -> FilePath
+makeTargetPath ConfigInfo{..} = makeTargetPath' appDir outputDir
 
 tools :: [Tool]
 tools =
@@ -77,7 +80,7 @@ readConfigInfo appDir outputDir shakeDir = do
                     putStrLn $ "Parse exception: " ++ show e
                     return $ emptyConfigInfo currentTime appYamlPath appDir' outputDir' shakeDir'
                 Right value -> do
-                    case parse (appConfigParser tools) value of
+                    case parse (appConfigParser (makeTargetPath' appDir' outputDir') tools) value of
                         Error message -> do
                             putStrLn $ "Could not parse configuration file at " ++ appYamlPath ++ ": " ++ message
                             return $ emptyConfigInfo currentTime appYamlPath appDir' outputDir' shakeDir'

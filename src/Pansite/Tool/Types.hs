@@ -14,9 +14,9 @@ import           Data.HashMap.Strict (HashMap)
 import           Data.Yaml
 
 data ToolContext = ToolContext
-    { toolContextMakeTargetPath :: FilePath -> FilePath -- TODO: Glorious hack!
-    , toolContextInputPath :: FilePath
-    , toolContextOutputPath :: FilePath
+    { toolContextOutputPath :: FilePath
+    , toolContextInputPaths :: [FilePath]
+    , toolContextDependencyPaths :: [FilePath]
     }
 
 type ToolName = String
@@ -25,4 +25,7 @@ type ToolRunner = ToolContext -> IO ()
 
 type ToolRunnerMap = HashMap String ToolRunner
 
-data Tool = forall a. Default a => Tool ToolName (Value -> Parser a) (a -> ToolRunner)
+data Tool = forall a. Default a => Tool
+    ToolName
+    ((FilePath -> FilePath) -> Value -> Parser a)
+    (a -> ToolRunner)
