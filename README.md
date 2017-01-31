@@ -38,6 +38,8 @@ routes:
 targets:
 - path: $(@D)/ctp.html
   tool: pandoc
+  tool-settings: # TODO: Overrides not implemented yet
+    number-sections: false # TODO: Overrides not implemented yet
   inputs:
   - ctp.md
   dependencies:
