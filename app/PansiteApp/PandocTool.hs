@@ -14,8 +14,8 @@ module PansiteApp.PandocTool (pandocToolSpec) where
 
 import           Control.Monad
 import           Data.Aeson
+import           Data.Aeson.Types
 import           Data.Default
-import           Data.Yaml
 import           Pansite
 import           PansiteApp.Util
 import           Text.Blaze.Html.Renderer.String

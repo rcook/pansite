@@ -14,7 +14,7 @@ module PansiteApp.App (appMain) where
 
 import           Control.Monad.IO.Class
 import qualified Data.ByteString.Lazy as BL
-import qualified Data.Map as Map
+import qualified Data.HashMap.Strict as HashMap
 import           Data.IORef
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
@@ -50,12 +50,12 @@ app logger configInfoRef req f = do
     let (ConfigInfo timestamp _ _ _ _ app@(App routes _)) = configInfo
 
     -- TODO: Let's not rebuild this on every request
-    let m = Map.fromList (map (\(Route ps targetPath) -> (map Text.pack ps, targetPath)) routes)
+    let m = HashMap.fromList (map (\(Route ps targetPath) -> (map Text.pack ps, targetPath)) routes)
 
     let requestPath = pathInfo req
     putStrLn $ "requestPath=" ++ show requestPath
 
-    case Map.lookup requestPath m of
+    case HashMap.lookup requestPath m of
         Just targetPath -> do
             liftIO $ logger req status200 (Just 0)
 

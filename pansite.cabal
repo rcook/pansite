@@ -28,16 +28,11 @@ library
   build-depends:                  aeson
                                 , base
                                 , bytestring
-                                , containers
                                 , data-default
-                                , http-types
                                 , split
-                                , stm
                                 , text
                                 , unordered-containers
                                 , vector
-                                , wai
-                                , warp
                                 , yaml
 
 executable pansite-app
@@ -56,7 +51,6 @@ executable pansite-app
                                 , base
                                 , blaze-html
                                 , bytestring
-                                , containers
                                 , data-default
                                 , directory
                                 , filepath
@@ -64,16 +58,13 @@ executable pansite-app
                                 , optparse-applicative
                                 , pandoc
                                 , pansite
-                                , process
                                 , shake
                                 , text
                                 , time
                                 , unordered-containers
-                                , vector
                                 , wai
                                 , wai-logger
                                 , warp
-                                , yaml
 
 test-suite pansite-doctest
   type:                           exitcode-stdio-1.0
@@ -92,7 +83,5 @@ test-suite pansite-spec
   hs-source-dirs:                 spec
   main-is:                        Spec.hs
   build-depends:                  base
-                                , bytestring
                                 , hspec
                                 , pansite
-                                , yaml

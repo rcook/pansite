@@ -13,8 +13,8 @@ Portability : portable
 module PansiteApp.CopyTool (copyToolSpec) where
 
 import           Data.Aeson
+import           Data.Aeson.Types
 import           Data.Default
-import           Data.Yaml
 import           Pansite
 
 data CopySettings = CopySettings
