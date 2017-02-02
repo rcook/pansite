@@ -10,11 +10,17 @@ Portability : portable
 
 module PansiteApp.CommandLine
     ( Options (..)
+    , ServerConfig (..)
     , parseOptions
     ) where
 
 import           Options.Applicative
-import           Pansite
+
+-- TODO: Move into separate module
+type Port = Int
+
+-- TODO: Move into separate module
+data ServerConfig = ServerConfig Port deriving Show
 
 data Options = Options ServerConfig FilePath FilePath FilePath
 

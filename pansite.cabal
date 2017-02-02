@@ -22,18 +22,7 @@ library
   ghc-options:                    -Werror -fwarn-incomplete-patterns -fwarn-unused-imports
   hs-source-dirs:                 src
   exposed-modules:                Pansite
-  other-modules:                  Pansite.AppConfig
-                                , Pansite.AppConfig.Funcs
-                                , Pansite.AppConfig.Types
-                                , Pansite.Event
-                                , Pansite.IO
-                                , Pansite.IO.Funcs
-                                , Pansite.IO.Types
-                                , Pansite.SafeUtil
-                                , Pansite.TestServer
-                                , Pansite.TestServer.Funcs
-                                , Pansite.TestServer.Types
-                                , Pansite.Tool
+  other-modules:                  Pansite.Tool
                                 , Pansite.Tool.Funcs
                                 , Pansite.Tool.Types
   build-depends:                  aeson
@@ -62,15 +51,9 @@ executable pansite-app
                                 , PansiteApp.ConfigInfo
                                 , PansiteApp.CopyTool
                                 , PansiteApp.CopyTool.Funcs
-                                , PansiteApp.CopyTool.Instances
-                                , PansiteApp.CopyTool.Parse
-                                , PansiteApp.CopyTool.Render
                                 , PansiteApp.CopyTool.Types
                                 , PansiteApp.PandocTool
                                 , PansiteApp.PandocTool.Funcs
-                                , PansiteApp.PandocTool.Instances
-                                , PansiteApp.PandocTool.Parse
-                                , PansiteApp.PandocTool.Render
                                 , PansiteApp.PandocTool.Types
                                 , PansiteApp.Util
   build-depends:                  aeson
@@ -112,8 +95,6 @@ test-suite pansite-spec
   ghc-options:                    -threaded -rtsopts -with-rtsopts=-N -Werror -fwarn-incomplete-patterns -fwarn-unused-imports
   hs-source-dirs:                 spec
   main-is:                        Spec.hs
-  other-modules:                  ConfigSpec
-                                , SafeUtilSpec
   build-depends:                  base
                                 , bytestring
                                 , hspec
