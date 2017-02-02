@@ -12,10 +12,7 @@ Portability : portable
 {-# LANGUAGE OverloadedStrings #-}
 
 module Pansite.Config.Funcs
-    ( App (..)
-    , Route (..)
-    , Target (..)
-    , readApp
+    ( readApp
     , toolConfigRunner
     ) where
 
@@ -34,11 +31,6 @@ import           Data.Yaml
 import           Pansite.Config.Types
 
 type ToolConfigMap = HashMap String ToolConfig
-
-data App = App [Route] [Target]
-data Route = Route [String] FilePath
-data Target = Target FilePath ToolConfig [FilePath] [FilePath]
-data ToolConfig = forall a. ToolConfig (ToolConfigUpdater a) (ToolConfigRunner a) a
 
 defaultToolConfig :: ToolSpec -> ToolConfig
 defaultToolConfig (ToolSpec key u r) = ToolConfig u r def

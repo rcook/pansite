@@ -11,10 +11,14 @@ Portability : portable
 {-# LANGUAGE ExistentialQuantification #-}
 
 module Pansite.Config.Types
-    ( FilePathResolver
+    ( App (..)
+    , FilePathResolver
     , ParserContext (..)
-    , ToolConfigUpdater
+    , Route (..)
+    , Target (..)
+    , ToolConfig (..)
     , ToolConfigRunner
+    , ToolConfigUpdater
     , ToolContext (..)
     , ToolSpec (..)
     ) where
@@ -40,3 +44,11 @@ data ToolSpec = forall a. Default a => ToolSpec
     String                  -- key
     (ToolConfigUpdater a)   -- updater function
     (ToolConfigRunner a)    -- runner function
+
+data App = App [Route] [Target]
+
+data Route = Route [String] FilePath
+
+data Target = Target FilePath ToolConfig [FilePath] [FilePath]
+
+data ToolConfig = forall a. ToolConfig (ToolConfigUpdater a) (ToolConfigRunner a) a
