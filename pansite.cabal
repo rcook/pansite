@@ -50,11 +50,7 @@ executable pansite-app
                                 , PansiteApp.CommandLine
                                 , PansiteApp.ConfigInfo
                                 , PansiteApp.CopyTool
-                                , PansiteApp.CopyTool.Funcs
-                                , PansiteApp.CopyTool.Types
                                 , PansiteApp.PandocTool
-                                , PansiteApp.PandocTool.Funcs
-                                , PansiteApp.PandocTool.Types
                                 , PansiteApp.Util
   build-depends:                  aeson
                                 , base
