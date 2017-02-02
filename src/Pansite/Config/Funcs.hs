@@ -1,6 +1,6 @@
 {-|
-Module      : Pansite.Tool.Types
-Description : Functions for Pansite external tool support
+Module      : Pansite.Config.Types
+Description : Functions for Pansite app configuration
 Copyright   : (C) Richard Cook, 2017
 Licence     : MIT
 Maintainer  : rcook@rcook.org
@@ -11,7 +11,7 @@ Portability : portable
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Pansite.Tool.Funcs
+module Pansite.Config.Funcs
     ( App (..)
     , Route (..)
     , Target (..)
@@ -31,7 +31,7 @@ import qualified Data.Text as Text
 import           Data.Traversable
 import qualified Data.Vector as Vector
 import           Data.Yaml
-import           Pansite.Tool.Types
+import           Pansite.Config.Types
 
 type ToolConfigMap = HashMap String ToolConfig
 

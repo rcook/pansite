@@ -22,9 +22,9 @@ library
   ghc-options:                    -Werror -fwarn-incomplete-patterns -fwarn-unused-imports
   hs-source-dirs:                 src
   exposed-modules:                Pansite
-  other-modules:                  Pansite.Tool
-                                , Pansite.Tool.Funcs
-                                , Pansite.Tool.Types
+  other-modules:                  Pansite.Config
+                                , Pansite.Config.Funcs
+                                , Pansite.Config.Types
   build-depends:                  aeson
                                 , base
                                 , bytestring

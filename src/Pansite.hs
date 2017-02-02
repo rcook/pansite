@@ -9,7 +9,7 @@ Portability : portable
 -}
 
 module Pansite
-    ( module Pansite.Tool
+    ( module Pansite.Config
     ) where
 
-import           Pansite.Tool
+import           Pansite.Config
