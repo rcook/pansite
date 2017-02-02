@@ -55,8 +55,14 @@ arrayParser :: Object -> Text -> (Value -> Parser a) -> Parser [a]
 arrayParser o key parser = helper (Text.unpack key) parser =<< (o .: key)
     where helper expected f = withArray expected $ \arr -> mapM f (Vector.toList arr)
 
+-- TODO: Create a unit test for this!
 parseRoutePath :: String -> [String]
-parseRoutePath = splitOn "/"
+parseRoutePath path =
+    let fragments = splitOn "/" path
+        fragmentCount = length fragments
+    in if (fragmentCount == 1 && fragments !! 0 == "")
+          then []
+          else fragments
 
 appParser :: ParserContext -> [ToolSpec] -> Value -> Parser App
 appParser ctx toolSpecs = withObject "App" $ \o -> do

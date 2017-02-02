@@ -52,7 +52,10 @@ app logger configInfoRef req f = do
     -- TODO: Let's not rebuild this on every request
     let m = Map.fromList (map (\(Route ps targetPath) -> (map Text.pack ps, targetPath)) routes)
 
-    case Map.lookup (pathInfo req) m of
+    let requestPath = pathInfo req
+    putStrLn $ "requestPath=" ++ show requestPath
+
+    case Map.lookup requestPath m of
         Just targetPath -> do
             liftIO $ logger req status200 (Just 0)
 
