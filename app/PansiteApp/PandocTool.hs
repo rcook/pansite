@@ -16,9 +16,11 @@ module PansiteApp.PandocTool (pandocToolSpec) where
 import           Control.Monad
 import           Data.Aeson
 import           Data.Aeson.Types
+import qualified Data.ByteString.Lazy as BL
 import           Data.Default
 import           Pansite
 import           PansiteApp.Util
+import           System.FilePath
 import           Text.Blaze.Html.Renderer.String
 import           Text.Pandoc
 import           Text.Pandoc.XML
@@ -76,8 +78,14 @@ runner
             , writerVariables = psVars
             }
 
-    let html = toEntities (renderHtml (writeHtml writerOpts doc))
-    writeFileUtf8 outputPath html
+    -- TODO: Ugh. Let's make this less hacky. It works for now though.
+    case (takeExtension outputPath) of
+        ".docx" -> do
+                        docx <- writeDocx writerOpts doc
+                        BL.writeFile outputPath docx
+        _ -> do
+                        let html = toEntities (renderHtml (writeHtml writerOpts doc))
+                        writeFileUtf8 outputPath html
 
 pandocToolSpec :: ToolSpec
 pandocToolSpec = ToolSpec "pandoc" updater runner

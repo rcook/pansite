@@ -63,17 +63,25 @@ app logger configInfoRef req f = do
 
             putStrLn $ "Read from " ++ targetPath
 
-            -- TODO: Eliminate this re-encoding
-            content <- Text.pack <$> readFileUtf8 targetPath
-
             -- TODO: Ugh. Let's make this less hacky. It works for now though.
-            let contentType = case (takeExtension targetPath) of
-                                ".css" -> "text/css; charset=utf-8"
-                                ".html" -> "text/html; charset=utf-8"
-                                _ -> "text/plain; charset=utf-8"
+            let (rawDataAction, contentType) = case (takeExtension targetPath) of
+                                                ".css" -> (makeUtf8Response targetPath, "text/css; charset=utf-8")
+                                                ".docx" -> (makeRawResponse targetPath, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+                                                ".html" -> (makeUtf8Response targetPath, "text/html; charset=utf-8")
+                                                _ -> (makeUtf8Response targetPath, "text/plain; charset=utf-8")
 
-            f $ responseLBS status200 [(hContentType, contentType)] (BL.fromStrict $ Text.encodeUtf8 content)
+            rawData <- rawDataAction
+            f $ responseLBS status200 [(hContentType, contentType)] rawData
         Nothing -> f $ responseLBS status200 [(hContentType, "text/plain")] "No such route"
+
+makeUtf8Response :: FilePath -> IO BL.ByteString
+makeUtf8Response targetPath = do
+    -- TODO: Eliminate multiple encoding redundancy!
+    content <- Text.pack <$> readFileUtf8 targetPath
+    return $ BL.fromStrict (Text.encodeUtf8 content)
+
+makeRawResponse :: FilePath -> IO BL.ByteString
+makeRawResponse = BL.readFile
 
 appMain :: IO ()
 appMain = parseOptions >>=
