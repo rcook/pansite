@@ -9,6 +9,7 @@ Portability : portable
 -}
 
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module PansiteApp.PandocTool (pandocToolSpec) where
 
@@ -26,33 +27,36 @@ data PandocSettings = PandocSettings
     { psNumberSections :: Bool
     , psVars :: [(String, String)]
     , psTemplatePath :: Maybe FilePath
+    , psTableOfContents :: Bool
     }
 
 instance Default PandocSettings where
-    def = PandocSettings False [] Nothing
+    def = PandocSettings False [] Nothing False
 
 updater :: ParserContext -> PandocSettings -> Value -> Parser PandocSettings
 updater
     (ParserContext resolveFilePath)
-    (PandocSettings numberSectionsOrig varsOrig mbTemplatePathOrig) =
-    withObject "pandoc" $ \o -> do
+    (PandocSettings numberSectionsOrig varsOrig mbTemplatePathOrig tableOfContentsOrig) =
+    withObject "pandoc" $ \o -> do -- TODO: Should be able to use applicative style here!
         numberSections <- o .:? "number-sections" .!= numberSectionsOrig
         vars <- o .:? "vars" .!= varsOrig
         mbTemplatePathTemp <- o .:? "template-path" .!= mbTemplatePathOrig
         let mbTemplatePath = resolveFilePath <$> mbTemplatePathTemp
-        return $ PandocSettings numberSections vars mbTemplatePath
+        tableOfContents <- o .:? "table-of-contents" .!= tableOfContentsOrig
+        return $ PandocSettings numberSections vars mbTemplatePath tableOfContents
 
 runner :: ToolContext -> PandocSettings -> IO ()
 runner
     (ToolContext outputPath inputPaths _)
-    (PandocSettings numberSections vars mbTemplatePath) = do
+    PandocSettings{..} = do
 
     putStrLn "PandocTool"
     putStrLn $ "  outputPath=" ++ outputPath
     putStrLn $ "  inputPaths=" ++ show inputPaths
-    putStrLn $ "  numberSections=" ++ show numberSections
-    putStrLn $ "  vars=" ++ show vars
-    putStrLn $ "  mbTemplatePath=" ++ show mbTemplatePath
+    putStrLn $ "  psNumberSections=" ++ show psNumberSections
+    putStrLn $ "  psTableOfContents=" ++ show psTableOfContents
+    putStrLn $ "  psTemplatePath=" ++ show psTemplatePath
+    putStrLn $ "  psVars=" ++ show psVars
 
     when -- TODO: Should support multiple inputs
         (length inputPaths /= 1)
@@ -60,15 +64,16 @@ runner
 
     input <- readFileUtf8 (head inputPaths) -- TODO: Should support multiple inputs
 
-    mbTemplate <- case mbTemplatePath of
+    mbTemplate <- case psTemplatePath of
                     Nothing -> return Nothing
                     Just templatePath -> Just <$> readFileUtf8 templatePath
 
     let Right doc = readMarkdown def input -- TODO: Irrefutable pattern
         writerOpts = def
-            { writerTemplate = mbTemplate
-            , writerVariables = vars
-            , writerNumberSections = numberSections
+            { writerNumberSections = psNumberSections
+            , writerTemplate = mbTemplate
+            , writerTableOfContents = psTableOfContents
+            , writerVariables = psVars
             }
 
     let html = toEntities (renderHtml (writeHtml writerOpts doc))
