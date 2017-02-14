@@ -38,29 +38,14 @@ instance Default PandocSettings where
     def = PandocSettings False [] Nothing False Nothing False
 
 updater :: ParserContext -> PandocSettings -> Value -> Parser PandocSettings
-updater
-    (ParserContext resolveFilePath)
-    PandocSettings{..} =
-    withObject "pandoc" $ \o -> do -- TODO: Should be able to use applicative style here!
-        numberSections <- o .:? "number-sections" .!= psNumberSections
-
-        vars <- o .:? "vars" .!= psVars
-
-        mbTemplatePath <- fmap (resolveFilePath <$>) (o .:? "template-path" .!= psTemplatePath)
-
-        tableOfContents <- o .:? "table-of-contents" .!= psTableOfContents
-
-        mbReferenceDocx <- fmap (resolveFilePath <$>) (o .:? "reference-docx" .!= psReferenceDocx)
-
-        mathJaxEnabled <- o .:? "mathjax" .!= psMathJaxEnabled
-
-        return $ PandocSettings
-                    numberSections
-                    vars
-                    mbTemplatePath
-                    tableOfContents
-                    mbReferenceDocx
-                    mathJaxEnabled
+updater (ParserContext resolveFilePath) PandocSettings{..} =
+    withObject "pandoc" $ \o -> PandocSettings
+        <$> o .:? "number-sections" .!= psNumberSections
+        <*> o .:? "vars" .!= psVars
+        <*> fmap (resolveFilePath <$>) (o .:? "template-path" .!= psTemplatePath)
+        <*> o .:? "table-of-contents" .!= psTableOfContents
+        <*> fmap (resolveFilePath <$>) (o .:? "reference-docx" .!= psReferenceDocx)
+        <*> o .:? "mathjax" .!= psMathJaxEnabled
 
 mathJaxUrl :: String
 mathJaxUrl = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full"
