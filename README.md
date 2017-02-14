@@ -14,7 +14,7 @@ This project is a prototype and, therefore, _should not be used for any real wor
 
 ## Current features
 
-* Uses Pandoc to render Markdown into HTML
+* Uses Pandoc to render Markdown into HTML (and, also, Microsoft Word documents)
 * Supports static resources such as CSS
 * Supports dynamic refresh of routes
 * Shake-based build ensure that outputs are correctly maintained as long as dependencies are fully specified
