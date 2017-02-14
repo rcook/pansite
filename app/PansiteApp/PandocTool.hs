@@ -46,13 +46,11 @@ updater
 
         vars <- o .:? "vars" .!= psVars
 
-        mbTemplatePathTemp <- o .:? "template-path" .!= psTemplatePath
-        let mbTemplatePath = resolveFilePath <$> mbTemplatePathTemp
+        mbTemplatePath <- fmap (resolveFilePath <$>) (o .:? "template-path" .!= psTemplatePath)
 
         tableOfContents <- o .:? "table-of-contents" .!= psTableOfContents
 
-        mbReferenceDocxTemp <- o .:? "reference-docx" .!= psReferenceDocx
-        let mbReferenceDocx = resolveFilePath <$> mbReferenceDocxTemp
+        mbReferenceDocx <- fmap (resolveFilePath <$>) (o .:? "reference-docx" .!= psReferenceDocx)
 
         mathJaxEnabled <- o .:? "mathjax" .!= psMathJaxEnabled
 
