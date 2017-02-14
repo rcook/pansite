@@ -13,11 +13,11 @@ Portability : portable
 
 module PansiteApp.PandocTool (pandocToolSpec) where
 
-import           Control.Monad
 import           Data.Aeson
 import           Data.Aeson.Types
 import qualified Data.ByteString.Lazy as BL
 import           Data.Default
+import           Data.List
 import           Pansite
 import           PansiteApp.Util
 import           System.FilePath
@@ -100,13 +100,9 @@ runner
     putStrLn $ "  psTemplatePath=" ++ show psTemplatePath
     putStrLn $ "  psVars=" ++ show psVars
 
-    when -- TODO: Should support multiple inputs
-        (length inputPaths /= 1)
-        (error "Pandoc tool currently supports exactly one input")
+    md <- (intercalate "\n\n") <$> sequence (map readFileUtf8 inputPaths)
 
-    input <- readFileUtf8 (head inputPaths) -- TODO: Should support multiple inputs
-
-    let Right doc = readMarkdown def input -- TODO: Irrefutable pattern
+    let Right doc = readMarkdown def md -- TODO: Irrefutable pattern
     writerOpts <- mkWriterOptions ps
 
     -- TODO: Ugh. Let's make this less hacky. It works for now though.

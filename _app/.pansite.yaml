@@ -33,7 +33,8 @@ targets:
   tool-settings:
     mathjax: true
   inputs:
-  - page2.md
+  - page2-part1.md
+  - page2-part2.md
   dependencies:
   - .pansite.yaml
 
