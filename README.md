@@ -8,6 +8,8 @@ This project uses [Stack][stack], [Pandoc][pandoc] and [Warp][warp]
 
 I want a [Hakyll][hakyll]-like static web site generator that can be easily used in conjunction with a dynamic site built with [Yesod][yesod]. I want it to use Pandoc so that I can build rich content, possibly with embedded mathematics. I also want it to be responsive, so that when I make changes to the underlying Markdown files, I can view the updated output in my browser quickly instead of having to wait thirty seconds for the Hakyll build to complete. There are probably tools that already do this (probably Hakyll itself can be made to do this), but I love reinventing the wheel. So, that's what I'm going to do.
 
+The system is intended to be extensible in the future, so I will put some thought into how to extract its core functionality into a library.
+
 ## Work in progress
 
 This project is a prototype and, therefore, _should not be used for any real work yet!_
