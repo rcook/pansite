@@ -36,7 +36,7 @@ configParser :: Parser FilePath
 configParser = strOption
     (long "config"
     <> short 'c'
-    <> value "app.yaml"
+    <> value ".pansite.yaml"
     <> metavar "CONFIG"
     <> help "path to YAML application configuration file")
 

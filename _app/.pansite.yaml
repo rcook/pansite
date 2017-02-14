@@ -19,7 +19,7 @@ targets:
   inputs:
   - index.md
   dependencies:
-  - app.yaml
+  - .pansite.yaml
 - path: $(@D)/page1.html
   tool: pandoc
   tool-settings:
@@ -27,7 +27,7 @@ targets:
   inputs:
   - page1.md
   dependencies:
-  - app.yaml
+  - .pansite.yaml
 - path: $(@D)/page2.html
   tool: pandoc
   tool-settings:
@@ -35,7 +35,7 @@ targets:
   inputs:
   - page2.md
   dependencies:
-  - app.yaml
+  - .pansite.yaml
 
 tool-settings:
   pandoc:
