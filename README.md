@@ -2,7 +2,7 @@
 
 ## Development
 
-This project uses [Stack][stack]
+This project uses [Stack][stack], [Pandoc][pandoc] and [Warp][warp]
 
 ## Why are you doing this?
 
@@ -21,7 +21,7 @@ This project is a prototype and, therefore, _should not be used for any real wor
 
 ## The vision
 
-Currently Pansite is a trivial web app built on top of [Warp][warp-hackage]. Routes are defined in a `.pansite.yaml` file using the following schema:
+Currently Pansite is a trivial web app built on top of Warp. Routes are defined in a `.pansite.yaml` file using the following schema:
 
 ```yaml
 # $(@D) is an automatic variable meaning "the output directory" (a la GNU Make)
@@ -75,7 +75,7 @@ Each `path` entry defines a route that the web app will respond to. The `target`
 
 The cached content files are currently built using [Shake][shake] using rules generated from the `.pansite.yaml` file. Thus, the app itself defines how to build the cached content files using a simple declarative format. There is a silly test site defined under `_app`, specifically in [`_app/.pansite.yaml`][app-example] that demonstrates the idea. I do not want to allow the app's content itself to provide a Shake build script since I do not want to allow the user-provided content to run arbitrary commands on my server. Instead, the simple declarative rules in `.pansite.yaml` constrain what the build system can do while still keeping it useful.
 
-Currently this prototype demonstrates the use of a single build tool, namely [Pandoc][pandoc-hackage]. I intend to refactor the code to make it straightforward to specify additional build tools: some will be embedded directly, like Pandoc, others can use the Shake's [`cmd`][cmd-hackage] function to invoke external processes.
+Currently this prototype demonstrates the use of a single build tool, namely Pandoc. I intend to refactor the code to make it straightforward to specify additional build tools: some will be embedded directly, like Pandoc, others can use the Shake's [`cmd`][cmd-hackage] function to invoke external processes.
 
 Build tools currently supported:
 
@@ -128,8 +128,8 @@ Copyright &copy; 2017 Richard Cook
 [gnu-make]: https://www.gnu.org/software/make/
 [hakyll]: https://jaspervdj.be/hakyll/
 [licence]: LICENSE
-[pandoc-hackage]: https://hackage.haskell.org/package/pandoc
+[pandoc]: http://pandoc.org/
 [shake]: http://shakebuild.com/
 [stack]: https://haskellstack.org/
-[warp-hackage]: https://hackage.haskell.org/package/warp
+[warp]: https://hackage.haskell.org/package/warp
 [yesod]: http://www.yesodweb.com/
