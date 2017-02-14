@@ -22,7 +22,7 @@ type Port = Int
 -- TODO: Move into separate module
 data ServerConfig = ServerConfig Port deriving Show
 
-data Options = Options ServerConfig FilePath FilePath FilePath
+data Options = Options ServerConfig FilePath FilePath
 
 portArg :: Parser Port
 portArg = option auto
@@ -32,13 +32,13 @@ portArg = option auto
     <> metavar "PORT"
     <> help "port")
 
-appDirParser :: Parser FilePath
-appDirParser = strOption
-    (long "app-dir"
-    <> short 'a'
-    <> value "_app"
-    <> metavar "APPDIR"
-    <> help "application directory")
+configParser :: Parser FilePath
+configParser = strOption
+    (long "config"
+    <> short 'c'
+    <> value "app.yaml"
+    <> metavar "CONFIG"
+    <> help "path to YAML application configuration file")
 
 outputDirParser :: Parser FilePath
 outputDirParser = strOption
@@ -48,23 +48,14 @@ outputDirParser = strOption
     <> metavar "OUTPUTDIR"
     <> help "output directory")
 
-shakeDirParser :: Parser FilePath
-shakeDirParser = strOption
-    (long "shake-dir"
-    <> short 's'
-    <> value "_shake"
-    <> metavar "SHAKEDIR"
-    <> help "Shake directory")
-
 serverConfigParser :: Parser ServerConfig
 serverConfigParser = ServerConfig <$> portArg
 
 optionsParser :: Parser Options
 optionsParser = Options
     <$> serverConfigParser
-    <*> appDirParser
+    <*> configParser
     <*> outputDirParser
-    <*> shakeDirParser
 
 parseOptions :: IO Options
 parseOptions = execParser optionsInfo

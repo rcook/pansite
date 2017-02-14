@@ -18,8 +18,8 @@ import           Pansite
 import           PansiteApp.ConfigInfo
 
 build :: ConfigInfo -> FilePath -> IO ()
-build (ConfigInfo _ _ _ _ shakeDir (App _ targets)) targetPath =
-    shake shakeOptions { shakeFiles = shakeDir } $ do
+build (ConfigInfo AppPaths{..} _ (App _ targets)) targetPath =
+    shake shakeOptions { shakeFiles = apShakeDir } $ do
         liftIO $ putStrLn ("want: " ++ targetPath)
         want [targetPath]
 

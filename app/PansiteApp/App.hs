@@ -27,6 +27,7 @@ import           PansiteApp.Build
 import           PansiteApp.CommandLine
 import           PansiteApp.ConfigInfo
 import           PansiteApp.Util
+import           System.Directory
 import           System.FilePath
 
 runApp :: ApacheLogger -> ServerConfig -> ConfigInfo -> IO ()
@@ -47,7 +48,7 @@ app logger configInfoRef req f = do
                             liftIO $ atomicWriteIORef configInfoRef configInfo'
                             return configInfo'
 
-    let (ConfigInfo timestamp _ _ _ _ app@(App routes _)) = configInfo
+    let (ConfigInfo timestamp _ app@(App routes _)) = configInfo
 
     -- TODO: Let's not rebuild this on every request
     let m = HashMap.fromList (map (\(Route ps targetPath) -> (map Text.pack ps, targetPath)) routes)
@@ -83,8 +84,18 @@ makeUtf8Response targetPath = do
 makeRawResponse :: FilePath -> IO BL.ByteString
 makeRawResponse = BL.readFile
 
+mkAppPaths :: FilePath -> FilePath -> IO AppPaths
+mkAppPaths appYamlPath outputDir = do
+    appYamlPath' <- canonicalizePath appYamlPath
+    let appDir = takeDirectory appYamlPath'
+    outputDir' <- canonicalizePath $ appDir </> outputDir
+    let cacheDir = outputDir' </> "cache"
+        shakeDir = outputDir' </> "shake"
+    return $ AppPaths appYamlPath' appDir cacheDir shakeDir
+
 appMain :: IO ()
 appMain = parseOptions >>=
-        \(Options serverConfig appDir outputDir shakeDir) -> withStdoutLogger $ \logger -> do
-        configInfo <- readConfigInfo appDir outputDir shakeDir
+    \(Options serverConfig appYamlPath outputDir) -> withStdoutLogger $ \logger -> do
+        appPaths <- mkAppPaths appYamlPath outputDir
+        configInfo <- readConfigInfo appPaths
         runApp logger serverConfig configInfo

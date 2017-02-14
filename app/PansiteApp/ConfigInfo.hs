@@ -11,7 +11,8 @@ Portability : portable
 {-# LANGUAGE RecordWildCards #-}
 
 module PansiteApp.ConfigInfo
-    ( ConfigInfo (..)
+    ( AppPaths (..)
+    , ConfigInfo (..)
     , readConfigInfo
     , updateConfigInfo
     ) where
@@ -24,58 +25,57 @@ import           PansiteApp.Util
 import           System.Directory
 import           System.FilePath
 
+data AppPaths = AppPaths
+    { apAppYamlPath :: FilePath
+    , apAppDir :: FilePath
+    , apCacheDir :: FilePath
+    , apShakeDir :: FilePath
+    }
+
 data ConfigInfo = ConfigInfo
-    { timestamp :: UTCTime
-    , appYamlPath :: FilePath
-    , appDir :: FilePath
-    , outputDir :: FilePath
-    , shakeDir :: FilePath
+    { ciAppPaths :: AppPaths
+    , ciTimestamp :: UTCTime
     , ciApp :: App
     }
 
 outputDirMeta :: FilePath
 outputDirMeta = "$(@D)"
 
-resolveFilePath :: FilePath -> FilePath -> FilePathResolver
-resolveFilePath appDir outputDir path
-    | takeDirectory path == outputDirMeta = outputDir </> skipDirectory path
-    | otherwise = appDir </> path
+resolveFilePath :: AppPaths -> FilePathResolver
+resolveFilePath AppPaths{..} path
+    | takeDirectory path == outputDirMeta = apCacheDir </> skipDirectory path
+    | otherwise = apAppDir </> path
 
-emptyConfigInfo :: UTCTime -> FilePath -> FilePath -> FilePath -> FilePath -> ConfigInfo
-emptyConfigInfo timestamp appYamlPath appDir outputDir shakeDir =
-    ConfigInfo timestamp appYamlPath appDir outputDir shakeDir (App [] [])
+emptyConfigInfo :: AppPaths -> UTCTime -> ConfigInfo
+emptyConfigInfo appPaths timestamp = ConfigInfo appPaths timestamp(App [] [])
 
-readConfigInfo :: FilePath -> FilePath -> FilePath -> IO ConfigInfo
-readConfigInfo appDir outputDir shakeDir = do
-    appDir' <- canonicalizePath appDir
-    outputDir' <- canonicalizePath outputDir
-    shakeDir' <- canonicalizePath shakeDir
-    let ctx = ParserContext (resolveFilePath appDir' outputDir')
+readConfigInfo :: AppPaths -> IO ConfigInfo
+readConfigInfo appPaths@AppPaths{..} = do
+    let ctx = ParserContext (resolveFilePath appPaths)
 
     -- TODO: Use UTCTime field to determine if shakeVersion should be incremented
-    let appYamlPath = appDir' </> "app.yaml"
     currentTime <- getCurrentTime
 
-    appYamlExists <- doesFileExist appYamlPath
+    appYamlExists <- doesFileExist apAppYamlPath
     if appYamlExists
         then do
-            putStrLn $ "Getting timestamp for configuration file " ++ appYamlPath
-            t <- getModificationTime appYamlPath
-            mbApp <- readApp ctx [copyToolSpec, pandocToolSpec] appYamlPath
+            putStrLn $ "Getting timestamp for configuration file " ++ apAppYamlPath
+            t <- getModificationTime apAppYamlPath
+            mbApp <- readApp ctx [copyToolSpec, pandocToolSpec] apAppYamlPath
             case mbApp of
                 Left message -> do
-                    putStrLn $ "Could not parse configuration file at " ++ appYamlPath ++ ": " ++ message
-                    return $ emptyConfigInfo currentTime appYamlPath appDir' outputDir' shakeDir'
-                Right app -> return $ ConfigInfo t appYamlPath appDir' outputDir' shakeDir' app
+                    putStrLn $ "Could not parse configuration file at " ++ apAppYamlPath ++ ": " ++ message
+                    return $ emptyConfigInfo appPaths currentTime
+                Right app -> return $ ConfigInfo appPaths t app
         else do
-            putStrLn $ "Configuration file does not exist at " ++ appYamlPath
-            return $ emptyConfigInfo currentTime appYamlPath appDir' outputDir' shakeDir'
+            putStrLn $ "Configuration file does not exist at " ++ apAppYamlPath
+            return $ emptyConfigInfo appPaths currentTime
 
 updateConfigInfo :: ConfigInfo -> IO (Maybe ConfigInfo)
 updateConfigInfo ConfigInfo{..} = do
-    t <- getModificationTime appYamlPath
-    if (t > timestamp)
+    t <- getModificationTime (apAppYamlPath ciAppPaths)
+    if (t > ciTimestamp)
         then do
-            configInfo' <- readConfigInfo appDir outputDir shakeDir
+            configInfo' <- readConfigInfo ciAppPaths
             return $ Just configInfo'
         else return Nothing
