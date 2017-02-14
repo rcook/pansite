@@ -2,26 +2,36 @@
 # All other paths are resolved relative to this directory containing this file
 
 routes:
-- path: content/ctp
-  target: $(@D)/ctp.html
-- path: content/pcph
-  target: $(@D)/pcph.html
+- path: ""
+  target: $(@D)/index.html
+- path: page1
+  target: $(@D)/page1.html
+- path: page2
+  target: $(@D)/page2.html
 - path: css/buttondown.css
   target: buttondown.css
 
 targets:
-- path: $(@D)/ctp.html
+- path: $(@D)/index.html
   tool: pandoc
   tool-settings:
     number-sections: false
   inputs:
-  - ctp.md
+  - index.md
   dependencies:
   - app.yaml
-- path: $(@D)/pcph.html
+- path: $(@D)/page1.html
+  tool: pandoc
+  tool-settings:
+    number-sections: false
+  inputs:
+  - page1.md
+  dependencies:
+  - app.yaml
+- path: $(@D)/page2.html
   tool: pandoc
   inputs:
-  - pcph.md
+  - page2.md
   dependencies:
   - app.yaml
 
