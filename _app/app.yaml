@@ -30,6 +30,8 @@ targets:
   - app.yaml
 - path: $(@D)/page2.html
   tool: pandoc
+  tool-settings:
+    mathjax: true
   inputs:
   - page2.md
   dependencies:

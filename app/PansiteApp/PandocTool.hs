@@ -31,40 +31,58 @@ data PandocSettings = PandocSettings
     , psTemplatePath :: Maybe FilePath
     , psTableOfContents :: Bool
     , psReferenceDocx :: Maybe FilePath
+    , psMathJaxEnabled :: Bool
     }
 
 instance Default PandocSettings where
-    def = PandocSettings False [] Nothing False Nothing
+    def = PandocSettings False [] Nothing False Nothing False
 
 updater :: ParserContext -> PandocSettings -> Value -> Parser PandocSettings
 updater
     (ParserContext resolveFilePath)
-    (PandocSettings numberSectionsOrig varsOrig mbTemplatePathOrig tableOfContentsOrig mbReferenceDocxOrig) =
+    PandocSettings{..} =
     withObject "pandoc" $ \o -> do -- TODO: Should be able to use applicative style here!
-        numberSections <- o .:? "number-sections" .!= numberSectionsOrig
+        numberSections <- o .:? "number-sections" .!= psNumberSections
 
-        vars <- o .:? "vars" .!= varsOrig
+        vars <- o .:? "vars" .!= psVars
 
-        mbTemplatePathTemp <- o .:? "template-path" .!= mbTemplatePathOrig
+        mbTemplatePathTemp <- o .:? "template-path" .!= psTemplatePath
         let mbTemplatePath = resolveFilePath <$> mbTemplatePathTemp
 
-        tableOfContents <- o .:? "table-of-contents" .!= tableOfContentsOrig
+        tableOfContents <- o .:? "table-of-contents" .!= psTableOfContents
 
-        mbReferenceDocxTemp <- o .:? "reference-docx" .!= mbReferenceDocxOrig
+        mbReferenceDocxTemp <- o .:? "reference-docx" .!= psReferenceDocx
         let mbReferenceDocx = resolveFilePath <$> mbReferenceDocxTemp
 
-        return $ PandocSettings numberSections vars mbTemplatePath tableOfContents mbReferenceDocx
+        mathJaxEnabled <- o .:? "mathjax" .!= psMathJaxEnabled
+
+        return $ PandocSettings
+                    numberSections
+                    vars
+                    mbTemplatePath
+                    tableOfContents
+                    mbReferenceDocx
+                    mathJaxEnabled
+
+mathJaxUrl :: String
+mathJaxUrl = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full"
 
 mkWriterOptions :: PandocSettings -> IO WriterOptions
 mkWriterOptions PandocSettings{..} = do
     mbTemplate <- case psTemplatePath of
                     Nothing -> return Nothing
                     Just templatePath -> Just <$> readFileUtf8 templatePath
+
+    let htmlMathMethod = if psMathJaxEnabled
+                            then MathJax mathJaxUrl
+                            else PlainMath
+
     return $ def
         { writerNumberSections = psNumberSections
         , writerReferenceDocx = psReferenceDocx
         , writerTemplate = mbTemplate
         , writerTableOfContents = psTableOfContents
+        , writerHTMLMathMethod = htmlMathMethod
         , writerVariables = psVars
         }
 
