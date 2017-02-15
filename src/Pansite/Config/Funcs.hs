@@ -95,20 +95,32 @@ targetParser ctx@(ParserContext resolveFilePath) toolConfigMap =
         dependencyPaths <-  ((map resolveFilePath) <$> o .: "dependencies")
         return $ Target path toolConfig inputPaths dependencyPaths
 
+parseExceptionMessage :: FilePath -> ParseException -> String
+parseExceptionMessage appYamlPath (InvalidYaml (Just (YamlException m))) =
+    "Invalid YAML: " ++ m ++ "\n" ++
+    "Location: " ++ appYamlPath
+parseExceptionMessage appYamlPath (InvalidYaml (Just (YamlParseException problem ctx (YamlMark _ line column)))) =
+    "Invalid YAML: " ++ problem ++ " " ++ ctx ++ "\n" ++
+    "Location: " ++ appYamlPath ++ ":" ++ show line ++ ":" ++ show column
+parseExceptionMessage appYamlPath (InvalidYaml _) = "Invalid YAML in " ++ appYamlPath
+parseExceptionMessage _ e = error $ "Unhandled exception: " ++ show e
+
 readApp :: ParserContext -> [ToolSpec] -> FilePath -> IO (Either String App)
 readApp ctx toolSpecs appYamlPath = do
     yaml <- C8.readFile appYamlPath
-    let value = case decodeEither' yaml of
-                    Left e -> error $ "Exception: " ++ show e -- TODO: Fix error handling
-                    Right v -> v
-        app@(App routes targets) = case parse (appParser ctx toolSpecs) value of
-                                    Error message -> error $ "Message: " ++ message -- TODO: Fix error handling
-                                    Success v -> v
+    case decodeEither' yaml of
+        Left e -> do
+            putStrLn $ "WARNING: " ++ parseExceptionMessage appYamlPath e
+            return $ Left (show e)
+        Right value -> do
+            let app@(App routes targets) = case parse (appParser ctx toolSpecs) value of
+                                            Error message -> error $ "Message: " ++ message -- TODO: Fix error handling
+                                            Success v -> v
 
-    forM_ routes $ \(Route path target) ->
-        putStrLn $ "Route: " ++ show path ++ " -> " ++ target
+            forM_ routes $ \(Route path target) ->
+                putStrLn $ "Route: " ++ show path ++ " -> " ++ target
 
-    forM_ targets $ \(Target path toolConfig inputPaths dependencyPaths) -> do
-        putStrLn $ "Target: " ++ path ++ ", " ++ show inputPaths ++ ", " ++ show dependencyPaths
+            forM_ targets $ \(Target path toolConfig inputPaths dependencyPaths) -> do
+                putStrLn $ "Target: " ++ path ++ ", " ++ show inputPaths ++ ", " ++ show dependencyPaths
 
-    return $ Right app
+            return $ Right app
