@@ -59,7 +59,7 @@ parseRoutePath path =
 appParser :: ParserContext -> [ToolSpec] -> Value -> Parser App
 appParser ctx toolSpecs = withObject "App" $ \o -> do
     let toolConfigMapOrig = HashMap.fromList (map (\t@(ToolSpec k _ _) -> (k, defaultToolConfig t)) toolSpecs)
-    toolConfigPairs <- toolConfigsParser =<< o .: "tool-settings"
+    toolConfigPairs <- toolConfigsParser =<< o .:? "tool-settings" .!= emptyObject
     toolConfigMap <- updateToolConfigs ctx toolConfigMapOrig toolConfigPairs
     routes <- arrayParser o "routes" (routeParser ctx)
     targets <- arrayParser o "targets" (targetParser ctx toolConfigMap)
