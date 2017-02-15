@@ -96,14 +96,19 @@ targetParser ctx@(ParserContext resolveFilePath) toolConfigMap =
         return $ Target path toolConfig inputPaths dependencyPaths
 
 parseExceptionMessage :: FilePath -> ParseException -> String
-parseExceptionMessage appYamlPath (InvalidYaml (Just (YamlException m))) =
-    "Invalid YAML: " ++ m ++ "\n" ++
+parseExceptionMessage appYamlPath (InvalidYaml (Just (YamlException problem))) =
+    "Invalid YAML: " ++ problem ++ "\n" ++
     "Location: " ++ appYamlPath
 parseExceptionMessage appYamlPath (InvalidYaml (Just (YamlParseException problem ctx (YamlMark _ line column)))) =
     "Invalid YAML: " ++ problem ++ " " ++ ctx ++ "\n" ++
     "Location: " ++ appYamlPath ++ ":" ++ show line ++ ":" ++ show column
 parseExceptionMessage appYamlPath (InvalidYaml _) = "Invalid YAML in " ++ appYamlPath
 parseExceptionMessage _ e = error $ "Unhandled exception: " ++ show e
+
+resultErrorMessage :: FilePath -> String -> String
+resultErrorMessage appYamlPath problem =
+    "Invalid configuration: " ++ problem ++ "\n" ++
+    "Location: " ++ appYamlPath
 
 readApp :: ParserContext -> [ToolSpec] -> FilePath -> IO (Either String App)
 readApp ctx toolSpecs appYamlPath = do
@@ -113,14 +118,13 @@ readApp ctx toolSpecs appYamlPath = do
             putStrLn $ "WARNING: " ++ parseExceptionMessage appYamlPath e
             return $ Left (show e)
         Right value -> do
-            let app@(App routes targets) = case parse (appParser ctx toolSpecs) value of
-                                            Error message -> error $ "Message: " ++ message -- TODO: Fix error handling
-                                            Success v -> v
-
-            forM_ routes $ \(Route path target) ->
-                putStrLn $ "Route: " ++ show path ++ " -> " ++ target
-
-            forM_ targets $ \(Target path toolConfig inputPaths dependencyPaths) -> do
-                putStrLn $ "Target: " ++ path ++ ", " ++ show inputPaths ++ ", " ++ show dependencyPaths
-
-            return $ Right app
+            case parse (appParser ctx toolSpecs) value of
+                Error problem -> do
+                    putStrLn $ "WARNING: " ++ resultErrorMessage appYamlPath problem
+                    return $ Left problem
+                Success app@(App routes targets) -> do
+                    forM_ routes $ \(Route path target) ->
+                        putStrLn $ "Route: " ++ show path ++ " -> " ++ target
+                    forM_ targets $ \(Target path toolConfig inputPaths dependencyPaths) -> do
+                        putStrLn $ "Target: " ++ path ++ ", " ++ show inputPaths ++ ", " ++ show dependencyPaths
+                    return $ Right app
