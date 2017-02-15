@@ -2,7 +2,7 @@
 
 ## Development
 
-This project uses [Stack][stack], [Pandoc][pandoc] and [Warp][warp]
+This project uses [Stack][stack], [Pandoc][pandoc], [Warp][warp] and [Shake][shake]
 
 ## Why are you doing this?
 
