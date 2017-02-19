@@ -13,9 +13,21 @@ Portability : portable
 module PansiteApp.Build (build) where
 
 import           Control.Monad
+import           Data.String.Utils
 import           Development.Shake
 import           Pansite
 import           PansiteApp.ConfigInfo
+import           PansiteApp.Util
+
+-- TODO: Patterns must only contain zero or one "%" characters
+-- This should be enforced!
+shakePattern :: FilePath -> FilePath
+shakePattern = replace "%" "*"
+
+-- TODO: Patterns must only contain zero or one "%" characters
+-- This should be enforced!
+expandWildcardPattern :: String -> String -> FilePath
+expandWildcardPattern = replace "%"
 
 build :: ConfigInfo -> FilePath -> IO ()
 build (ConfigInfo AppPaths{..} _ (App _ targets)) targetPath =
@@ -25,10 +37,17 @@ build (ConfigInfo AppPaths{..} _ (App _ targets)) targetPath =
 
         forM_ targets $ \(Target path toolConfig inputPaths dependencyPaths) -> do
             liftIO $ putStrLn ("rule: " ++ path)
-            path %> \outputPath -> do
-                liftIO $ putStrLn ("need: " ++ show inputPaths)
-                need inputPaths
-                liftIO $ putStrLn ("need: " ++ show dependencyPaths)
-                need dependencyPaths
-                let ctx = ToolContext outputPath inputPaths dependencyPaths
+            shakePattern path %> \outputPath -> do
+                let (stem, "%") = stems outputPath path -- TODO: Is this kind of irrefutable pattern OK? It's an assert of sorts.
+                    replaceWithStem = expandWildcardPattern stem
+                    inputPaths' = map replaceWithStem inputPaths
+                    dependencyPaths' = map replaceWithStem dependencyPaths
+
+                liftIO $ do
+                    putStrLn ("need: " ++ show inputPaths')
+                    putStrLn ("need: " ++ show dependencyPaths')
+                need inputPaths'
+                need dependencyPaths'
+
+                let ctx = ToolContext outputPath inputPaths' dependencyPaths'
                 liftIO $ toolConfigRunner ctx toolConfig

@@ -47,7 +47,8 @@ executable pansite-app
                                 , PansiteApp.CopyTool
                                 , PansiteApp.PandocTool
                                 , PansiteApp.Util
-  build-depends:                  aeson
+  build-depends:                  MissingH
+                                , aeson
                                 , base
                                 , blaze-html
                                 , bytestring

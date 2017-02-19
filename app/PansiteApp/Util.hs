@@ -12,12 +12,71 @@ module PansiteApp.Util
     ( readFileUtf8
     , readFileWithEncoding
     , skipDirectory
+    , stems
     , writeFileUtf8
     , writeFileWithEncoding
     ) where
 
 import           System.FilePath
 import           System.IO
+
+
+-- | Compute common prefix of two lists
+--
+-- Examples:
+--
+-- >>> commonPrefix "abcdefghi" "abcdefghi"
+-- "abcdefghi"
+-- >>> commonPrefix "abcdefghi" "abcfoo"
+-- "abc"
+-- >>> commonPrefix "abc" "xyz"
+-- ""
+commonPrefix :: (Eq a) => [a] -> [a] -> [a]
+commonPrefix _ [] = []
+commonPrefix [] _ = []
+commonPrefix (x : xs) (y : ys)
+    | x == y = x : commonPrefix xs ys
+    | otherwise = []
+
+-- | Compute common suffix of two lists
+--
+-- Examples:
+--
+-- >>> commonSuffix "abcdefghi" "abcdefghi"
+-- "abcdefghi"
+-- >>> commonSuffix "abcdefghi" "fooghi"
+-- "ghi"
+-- >>> commonSuffix "abc" "xyz"
+-- ""
+commonSuffix :: (Eq a) => [a] -> [a] -> [a]
+commonSuffix xs ys = reverse (commonPrefix (reverse xs) (reverse ys))
+
+-- | Slice of list
+--
+-- Examples:
+--
+-- >>> slice 4 10 "helloworldgoodbye"
+-- "oworld"
+slice :: Int -> Int -> [a] -> [a]
+slice p0 p1 xs = take (p1 - p0) (drop p0 xs)
+
+-- | Stems of lists
+--
+-- Examples:
+--
+-- >>> stems "abcmiddledef" "abcfoodef"
+-- ("middle","foo")
+-- >>> stems "abc" "xyz"
+-- ("abc","xyz")
+stems :: (Eq a) => [a] -> [a] -> ([a], [a])
+stems xs ys =
+    let prefix = commonPrefix xs ys
+        prefixCount = length prefix
+        suffix = commonSuffix xs ys
+        suffixCount = length suffix
+        xsCount = length xs
+        ysCount = length ys
+    in (slice prefixCount (xsCount - suffixCount) xs, slice prefixCount (ysCount - suffixCount) ys)
 
 readFileWithEncoding :: TextEncoding -> FilePath -> IO String
 readFileWithEncoding encoding path = do

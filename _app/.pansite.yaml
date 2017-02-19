@@ -1,5 +1,7 @@
 # $(@D) is an automatic variable meaning "the output directory" (a la GNU Make)
 # All other paths are resolved relative to this directory containing this file
+# For wildcards, we also adopt GNU Make's % wildcard character which fits
+# our system's semantics fairly well
 
 routes:
 - path: ""
@@ -10,6 +12,8 @@ routes:
   target: $(@D)/page2.html
 - path: css/buttondown.css
   target: buttondown.css
+- path: wildcard
+  target: $(@D)/wildcard.html
 
 targets:
 - path: $(@D)/index.html
@@ -35,6 +39,14 @@ targets:
   inputs:
   - page2-part1.md
   - page2-part2.md
+  dependencies:
+  - .pansite.yaml
+- path: $(@D)/%.html
+  tool: pandoc
+  tool-settings:
+    number-sections: false
+  inputs:
+  - "%.md"
   dependencies:
   - .pansite.yaml
 
