@@ -57,6 +57,7 @@ executable pansite-app
                                 , http-types
                                 , optparse-applicative
                                 , pandoc
+                                , pandoc-types
                                 , pansite
                                 , shake
                                 , text

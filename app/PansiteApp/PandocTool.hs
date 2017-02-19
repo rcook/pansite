@@ -23,6 +23,7 @@ import           PansiteApp.Util
 import           System.FilePath
 import           Text.Blaze.Html.Renderer.String
 import           Text.Pandoc
+import           Text.Pandoc.Walk
 import           Text.Pandoc.XML
 
 data PandocSettings = PandocSettings
@@ -109,7 +110,9 @@ runner
 
     md <- (intercalate "\n\n") <$> sequence (map readFileUtf8 inputPaths)
 
-    let Right doc = readMarkdown def md -- TODO: Irrefutable pattern
+    let Right doc' = readMarkdown def md -- TODO: Irrefutable pattern
+        doc = walk rewriteLinks doc'
+
     writerOpts <- mkWriterOptions ps
 
     -- TODO: Ugh. Let's make this less hacky. It works for now though.
@@ -120,6 +123,21 @@ runner
         _ -> do
                         let html = toEntities (renderHtml (writeHtml writerOpts doc))
                         writeFileUtf8 outputPath html
+
+-- TODO: This is very application-specific
+-- TODO: Figure out how to allow this behaviour to be specified in app configuration
+transformUrl :: String -> String
+transformUrl url =
+    let (path, ext) = splitExtension url
+    in case ext of
+        ".md" -> path
+        _ -> url
+
+-- TODO: This is very application-specific
+-- TODO: Figure out how to allow this behaviour to be specified in app configuration
+rewriteLinks :: Inline -> Inline
+rewriteLinks (Link attr is (url, title)) = Link attr is (transformUrl url, title)
+rewriteLinks i = i
 
 pandocToolSpec :: ToolSpec
 pandocToolSpec = ToolSpec "pandoc" updater runner
