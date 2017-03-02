@@ -15,6 +15,7 @@ module PansiteApp.CommandLine
     ) where
 
 import           Options.Applicative
+import           PansiteApp.VersionInfo
 
 -- TODO: Move into separate module
 type Port = Int
@@ -66,4 +67,4 @@ commandParser = runCommandParser <|> versionCommandParser
 parseCommand :: IO Command
 parseCommand = execParser $ info
     (helper <*> commandParser)
-    (fullDesc <> progDesc "Run Pansite development server" <> header "Pansite development server")
+    (fullDesc <> progDesc "Run Pansite development server" <> header ("Pansite development server " ++ fullVersionString))

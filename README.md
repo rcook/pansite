@@ -105,18 +105,19 @@ In your web browser, navigate to a route defined in `.pansite.yaml`, e.g. `http:
 
 ```terminal
 $ stack exec -- pansite-app --help
-Pansite development server
+Pansite development server 0.1.0.0.772a2d5 (locally modified)
 
-Usage: pansite-app [-p|--port PORT] [-c|--config CONFIG]
-                   [-o|--output-dir OUTPUTDIR]
+Usage: pansite-app ([-p|--port PORT] [-c|--config CONFIG]
+                   [-o|--output-dir OUTPUTDIR] | [-v|--version])
   Run Pansite development server
 
 Available options:
   -h,--help                Show this help text
-  -p,--port PORT           port
-  -c,--config CONFIG       path to YAML application configuration file
+  -p,--port PORT           Port
+  -c,--config CONFIG       Path to YAML application configuration file
   -o,--output-dir OUTPUTDIR
-                           output directory
+                           Output directory
+  -v,--version             Show version
 ```
 
 ## Licence
