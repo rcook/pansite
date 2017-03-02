@@ -30,7 +30,7 @@ portArg = option auto
     <> short 'p'
     <> value 3000
     <> metavar "PORT"
-    <> help "port")
+    <> help "Port")
 
 configParser :: Parser FilePath
 configParser = strOption
@@ -38,7 +38,7 @@ configParser = strOption
     <> short 'c'
     <> value ".pansite.yaml"
     <> metavar "CONFIG"
-    <> help "path to YAML application configuration file")
+    <> help "Path to YAML application configuration file")
 
 outputDirParser :: Parser FilePath
 outputDirParser = strOption
@@ -46,7 +46,7 @@ outputDirParser = strOption
     <> short 'o'
     <> value "_output"
     <> metavar "OUTPUTDIR"
-    <> help "output directory")
+    <> help "Output directory")
 
 serverConfigParser :: Parser ServerConfig
 serverConfigParser = ServerConfig <$> portArg
