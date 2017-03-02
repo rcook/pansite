@@ -27,8 +27,12 @@ import           PansiteApp.Build
 import           PansiteApp.CommandLine
 import           PansiteApp.ConfigInfo
 import           PansiteApp.Util
+import           PansiteApp.VersionInfo
 import           System.Directory
 import           System.FilePath
+
+productVersion :: String
+productVersion = "Pansite " ++ fullVersionString
 
 runApp :: ApacheLogger -> ServerConfig -> ConfigInfo -> IO ()
 runApp logger (ServerConfig port) configInfo = do
@@ -94,8 +98,10 @@ mkAppPaths appYamlPath outputDir = do
     return $ AppPaths appYamlPath' appDir cacheDir shakeDir
 
 appMain :: IO ()
-appMain = parseOptions >>=
-    \(Options serverConfig appYamlPath outputDir) -> withStdoutLogger $ \logger -> do
-        appPaths <- mkAppPaths appYamlPath outputDir
-        configInfo <- readConfigInfo appPaths
-        runApp logger serverConfig configInfo
+appMain = parseCommand >>= handleCommand
+    where
+        handleCommand (RunCommand serverConfig appYamlPath outputDir) = withStdoutLogger $ \logger -> do
+            appPaths <- mkAppPaths appYamlPath outputDir
+            configInfo <- readConfigInfo appPaths
+            runApp logger serverConfig configInfo
+        handleCommand VersionCommand = putStrLn productVersion

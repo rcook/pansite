@@ -9,9 +9,9 @@ Portability : portable
 -}
 
 module PansiteApp.CommandLine
-    ( Options (..)
+    ( Command (..)
     , ServerConfig (..)
-    , parseOptions
+    , parseCommand
     ) where
 
 import           Options.Applicative
@@ -22,7 +22,7 @@ type Port = Int
 -- TODO: Move into separate module
 data ServerConfig = ServerConfig Port deriving Show
 
-data Options = Options ServerConfig FilePath FilePath
+data Command = RunCommand ServerConfig FilePath FilePath | VersionCommand
 
 portArg :: Parser Port
 portArg = option auto
@@ -51,15 +51,19 @@ outputDirParser = strOption
 serverConfigParser :: Parser ServerConfig
 serverConfigParser = ServerConfig <$> portArg
 
-optionsParser :: Parser Options
-optionsParser = Options
+runCommandParser :: Parser Command
+runCommandParser = RunCommand
     <$> serverConfigParser
     <*> configParser
     <*> outputDirParser
 
-parseOptions :: IO Options
-parseOptions = execParser optionsInfo
-    where
-        optionsInfo = info
-            (helper <*> optionsParser)
-            (fullDesc <> progDesc "Run Pansite development server" <> header "Pansite development server")
+versionCommandParser :: Parser Command
+versionCommandParser = flag' VersionCommand (short 'v' <> long "version" <> help "Show version")
+
+commandParser :: Parser Command
+commandParser = runCommandParser <|> versionCommandParser
+
+parseCommand :: IO Command
+parseCommand = execParser $ info
+    (helper <*> commandParser)
+    (fullDesc <> progDesc "Run Pansite development server" <> header "Pansite development server")

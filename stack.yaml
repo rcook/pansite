@@ -6,5 +6,6 @@ extra-deps:
 - pandoc-1.19.1
 - pandoc-types-1.17.0.5
 - texmath-0.9
+- vcs-revision-0.0.2
 flags: {}
 extra-package-dbs: []
