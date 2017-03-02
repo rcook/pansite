@@ -24,7 +24,7 @@ instance Default CopySettings where
 
 updater :: ParserContext -> CopySettings -> Value -> Parser CopySettings
 updater _ orig =
-    withObject "copy" $ \o -> pure orig
+    withObject "copy" $ \_ -> pure orig
 
 runner :: ToolContext -> CopySettings -> IO ()
 runner _ _ = error "Not implemented"

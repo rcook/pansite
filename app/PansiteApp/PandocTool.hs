@@ -44,7 +44,7 @@ instance Default PandocSettings where
 updater :: ParserContext -> PandocSettings -> Value -> Parser PandocSettings
 updater (ParserContext resolveFilePath) PandocSettings{..} =
     withObject "pandoc" $ \o ->
-        let getFilePath key def = fmap (resolveFilePath <$>) (o .:? key .!= def)
+        let getFilePath key d = fmap (resolveFilePath <$>) (o .:? key .!= d)
         in PandocSettings
             <$> o .:? "number-sections" .!= psNumberSections
             <*> o .:? "vars" .!= psVars

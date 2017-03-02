@@ -52,7 +52,7 @@ app logger configInfoRef req f = do
                             liftIO $ atomicWriteIORef configInfoRef configInfo'
                             return configInfo'
 
-    let (ConfigInfo timestamp _ app@(App routes _)) = configInfo
+    let (ConfigInfo _ _ (App routes _)) = configInfo
 
     -- TODO: Let's not rebuild this on every request
     let m = HashMap.fromList (map (\(Route ps targetPath) -> (map Text.pack ps, targetPath)) routes)

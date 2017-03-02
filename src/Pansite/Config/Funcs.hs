@@ -33,7 +33,7 @@ import           Pansite.Config.Types
 type ToolConfigMap = HashMap String ToolConfig
 
 defaultToolConfig :: ToolSpec -> ToolConfig
-defaultToolConfig (ToolSpec key u r) = ToolConfig u r def
+defaultToolConfig (ToolSpec _ u r) = ToolConfig u r def
 
 toolConfigUpdater :: ParserContext -> ToolConfig -> Value -> Parser ToolConfig
 toolConfigUpdater ctx (ToolConfig u r a) value = do
@@ -125,6 +125,6 @@ readApp ctx toolSpecs appYamlPath = do
                 Success app@(App routes targets) -> do
                     forM_ routes $ \(Route path target) ->
                         putStrLn $ "Route: " ++ show path ++ " -> " ++ target
-                    forM_ targets $ \(Target path toolConfig inputPaths dependencyPaths) -> do
+                    forM_ targets $ \(Target path _ inputPaths dependencyPaths) -> do
                         putStrLn $ "Target: " ++ path ++ ", " ++ show inputPaths ++ ", " ++ show dependencyPaths
                     return $ Right app
