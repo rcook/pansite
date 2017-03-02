@@ -77,7 +77,7 @@ app logger configInfoRef req f = do
 
             rawData <- rawDataAction
             f $ responseLBS status200 [(hContentType, contentType)] rawData
-        Nothing -> f $ responseLBS status200 [(hContentType, "text/plain")] "No such route"
+        Nothing -> f $ responseLBS status404 [(hContentType, "text/plain")] "404 - Not Found"
 
 makeUtf8Response :: FilePath -> IO BL.ByteString
 makeUtf8Response targetPath = do
