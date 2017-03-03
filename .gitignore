@@ -1,3 +1,4 @@
+*.tar.gz
 /.stack-work/
 /_output/
 /_shake/
