@@ -1,4 +1,13 @@
 #!/bin/bash
+############################################################
+#
+# grip
+# Copyright (C) 2017, Richard Cook
+# Released under MIT License
+# https://github.com/rcook/pansite
+#
+############################################################
+
 set -euo pipefail
 IFS=$'\n\t'
 
@@ -6,4 +15,4 @@ script_dir=$(cd $(dirname $0); pwd -P)
 repo_dir=$(dirname $script_dir)
 
 cd $repo_dir
-python -m grip $*
+$script_dir/bootstrap -m grip $*
