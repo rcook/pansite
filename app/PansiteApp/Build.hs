@@ -12,6 +12,7 @@ Portability : portable
 
 module PansiteApp.Build (build) where
 
+import           Control.Exception
 import           Control.Monad
 import           Data.String.Utils
 import           Development.Shake
@@ -19,15 +20,22 @@ import           Pansite
 import           PansiteApp.ConfigInfo
 import           PansiteApp.Util
 
--- TODO: Patterns must only contain zero or one "%" characters
--- This should be enforced!
-shakePattern :: FilePath -> FilePath
-shakePattern = replace "%" "*"
+data WildcardError = WildcardError FilePath deriving Show
+instance Exception WildcardError
 
--- TODO: Patterns must only contain zero or one "%" characters
--- This should be enforced!
-expandWildcardPattern :: String -> String -> FilePath
-expandWildcardPattern = replace "%"
+replaceZeroOrOneMarker :: String -> String -> String -> Either String String
+replaceZeroOrOneMarker old new str
+    | let n = countOccurrences str old in n == 0 || n == 1 = Right $ replace old new str
+    | otherwise = Left str
+
+replaceZeroOrOneMarkerMulti :: String -> String -> [String] -> Either String [String]
+replaceZeroOrOneMarkerMulti old new = mapM (replaceZeroOrOneMarker old new)
+
+gnuMakeWildcardToken :: String
+gnuMakeWildcardToken = "%"
+
+shakeWildcardToken :: String
+shakeWildcardToken = "*"
 
 build :: ConfigInfo -> FilePath -> IO ()
 build (ConfigInfo AppPaths{..} _ (App _ targets)) targetPath =
@@ -35,19 +43,33 @@ build (ConfigInfo AppPaths{..} _ (App _ targets)) targetPath =
         liftIO $ putStrLn ("want: " ++ targetPath)
         want [targetPath]
 
-        forM_ targets $ \(Target path toolConfig inputPaths dependencyPaths) -> do
-            liftIO $ putStrLn ("rule: " ++ path)
-            shakePattern path %> \outputPath -> do
-                let (stem, "%") = stems outputPath path -- TODO: Is this kind of irrefutable pattern OK? It's an assert of sorts.
-                    replaceWithStem = expandWildcardPattern stem
-                    inputPaths' = map replaceWithStem inputPaths
-                    dependencyPaths' = map replaceWithStem dependencyPaths
+        forM_ targets $ \(Target pathRule toolConfig inputPathRules dependencyPathRules) -> do
+            shakePathPattern <- liftIO $ do
+                putStrLn $ "rule: " ++ pathRule
 
-                liftIO $ do
-                    putStrLn ("need: " ++ show inputPaths')
-                    putStrLn ("need: " ++ show dependencyPaths')
-                need inputPaths'
-                need dependencyPaths'
+                case replaceZeroOrOneMarker gnuMakeWildcardToken shakeWildcardToken pathRule of
+                    Right p -> return p
+                    Left message -> throwIO $ WildcardError message
 
-                let ctx = ToolContext outputPath inputPaths' dependencyPaths'
+            shakePathPattern %> \outputPath -> do
+                (inputPaths, dependencyPaths) <- liftIO $ do
+                    let (stem, "%") = stems outputPath pathRule
+
+                    inputPaths <- case replaceZeroOrOneMarkerMulti gnuMakeWildcardToken stem inputPathRules of
+                        Left message -> throwIO $ WildcardError message
+                        Right paths -> return paths
+
+                    dependencyPaths <- case replaceZeroOrOneMarkerMulti gnuMakeWildcardToken stem dependencyPathRules of
+                        Left message -> throwIO $ WildcardError message
+                        Right paths -> return paths
+
+                    putStrLn $ "need: " ++ show inputPaths
+                    putStrLn $ "need: " ++ show dependencyPaths
+
+                    return (inputPaths, dependencyPaths)
+
+                need inputPaths
+                need dependencyPaths
+
+                let ctx = ToolContext outputPath inputPaths dependencyPaths
                 liftIO $ toolConfigRunner ctx toolConfig

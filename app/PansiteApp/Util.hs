@@ -9,7 +9,8 @@ Portability : portable
 -}
 
 module PansiteApp.Util
-    ( readFileUtf8
+    ( countOccurrences
+    , readFileUtf8
     , readFileWithEncoding
     , skipDirectory
     , stems
@@ -17,9 +18,28 @@ module PansiteApp.Util
     , writeFileWithEncoding
     ) where
 
+import           Data.List.Split
 import           System.FilePath
 import           System.IO
 
+-- | Number of occurrences of a substring in a string
+--
+-- Examples:
+--
+-- >>> countOccurrences "" "abc"
+-- 0
+-- >>> countOccurrences "" ""
+-- 0
+-- >>> countOccurrences "abcdefghi" "xyz"
+-- 0
+-- >>> countOccurrences "abc" "abc"
+-- 1
+-- >>> countOccurrences "abcabc" "abc"
+-- 2
+-- >>> countOccurrences "abcdefabcghiabcjkl" "abc"
+-- 3
+countOccurrences :: String -> String -> Int
+countOccurrences str substr = length (splitOn substr str) - 1
 
 -- | Compute common prefix of two lists
 --

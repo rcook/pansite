@@ -62,6 +62,7 @@ executable pansite-app
                                 , pandoc-types
                                 , pansite
                                 , shake
+                                , split
                                 , template-haskell
                                 , text
                                 , time
