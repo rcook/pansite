@@ -47,14 +47,20 @@ arrayParser :: Object -> Text -> (Value -> Parser a) -> Parser [a]
 arrayParser o key parser = helper (Text.unpack key) parser =<< (o .: key)
     where helper expected f = withArray expected $ \arr -> mapM f (Vector.toList arr)
 
--- TODO: Create a unit test for this!
-parseRoutePath :: String -> [String]
-parseRoutePath path =
-    let fragments = splitOn "/" path
-        fragmentCount = length fragments
-    in if (fragmentCount == 1 && fragments !! 0 == "")
-          then []
-          else fragments
+-- | Split route path into fragments
+--
+-- Examples:
+--
+-- >>> splitRoutePath "aaa/bbb"
+-- ["aaa","bbb"]
+-- >>> splitRoutePath "aaa"
+-- ["aaa"]
+-- >>> splitRoutePath ""
+-- []
+splitRoutePath :: String -> [String]
+splitRoutePath path = case splitOn "/" path of
+    [""] -> []
+    fragments -> fragments
 
 appParser :: ParserContext -> [ToolSpec] -> Value -> Parser App
 appParser ctx toolSpecs = withObject "App" $ \o -> do
@@ -79,7 +85,7 @@ updateToolConfigs ctx = foldM (\m (key, value) -> case HashMap.lookup key m of
 routeParser :: ParserContext -> Value -> Parser Route
 routeParser (ParserContext resolveFilePath) =
     withObject "route" $ \o -> Route
-        <$> parseRoutePath <$> o .: "path"
+        <$> splitRoutePath <$> o .: "path"
         <*> (resolveFilePath <$> o .: "target")
 
 targetParser :: ParserContext -> ToolConfigMap -> Value -> Parser Target
