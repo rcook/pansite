@@ -19,6 +19,7 @@ import           Development.Shake
 import           Pansite
 import           PansiteApp.ConfigInfo
 import           PansiteApp.Util
+import           System.Directory
 
 data WildcardError = WildcardError FilePath deriving Show
 instance Exception WildcardError
@@ -37,6 +38,22 @@ gnuMakeWildcardToken = "%"
 shakeWildcardToken :: String
 shakeWildcardToken = "*"
 
+-- Must call canonicalizePath on Windows to handle slash differences etc.
+-- Consider writing some tests for this
+-- TODO: Ensure that strings have correct format at parse time
+stemPaths :: FilePath -> String -> IO String
+stemPaths path rule = do
+    path' <- canonicalizePath path
+    rule' <- canonicalizePath rule
+
+    let (stem, token) = stems path' rule'
+    when (token /= gnuMakeWildcardToken && length token > 0) $ do
+        putStrLn $ "path=" ++ path
+        putStrLn $ "rule=" ++ rule
+        throwIO $ WildcardError ("Bad wildcard token: " ++ token)
+
+    return stem
+
 build :: ConfigInfo -> FilePath -> IO ()
 build (ConfigInfo AppPaths{..} _ (App _ targets)) targetPath =
     shake shakeOptions { shakeFiles = apShakeDir } $ do
@@ -53,7 +70,7 @@ build (ConfigInfo AppPaths{..} _ (App _ targets)) targetPath =
 
             shakePathPattern %> \outputPath -> do
                 (inputPaths, dependencyPaths) <- liftIO $ do
-                    let (stem, "%") = stems outputPath pathRule
+                    stem <- stemPaths outputPath pathRule
 
                     inputPaths <- case replaceZeroOrOneMarkerMulti gnuMakeWildcardToken stem inputPathRules of
                         Left message -> throwIO $ WildcardError message
