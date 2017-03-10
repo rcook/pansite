@@ -20,6 +20,12 @@ source-repository head
 library
   default-language:               Haskell2010
   ghc-options:                    -W -Wall -fwarn-incomplete-patterns -fwarn-unused-imports
+  if os(darwin)
+    cpp-options:                  -DOS_MACOS
+  if os(linux)
+    cpp-options:                  -DOS_LINUX
+  if os(windows)
+    cpp-options:                  -DOS_WINDOWS
   hs-source-dirs:                 src
   exposed-modules:                Pansite
   other-modules:                  Pansite.Config
@@ -38,6 +44,12 @@ library
 executable pansite-app
   default-language:               Haskell2010
   ghc-options:                    -threaded -rtsopts -with-rtsopts=-N -W -Wall -fwarn-incomplete-patterns -fwarn-unused-imports
+  if os(darwin)
+    cpp-options:                  -DOS_MACOS
+  if os(linux)
+    cpp-options:                  -DOS_LINUX
+  if os(windows)
+    cpp-options:                  -DOS_WINDOWS
   hs-source-dirs:                 app
   main-is:                        Main.hs
   other-modules:                  PansiteApp.App
@@ -45,6 +57,7 @@ executable pansite-app
                                 , PansiteApp.CommandLine
                                 , PansiteApp.ConfigInfo
                                 , PansiteApp.CopyTool
+                                , PansiteApp.FileSystem
                                 , PansiteApp.PandocTool
                                 , PansiteApp.Util
                                 , PansiteApp.VersionInfo
@@ -76,6 +89,12 @@ test-suite pansite-doctest
   type:                           exitcode-stdio-1.0
   default-language:               Haskell2010
   ghc-options:                    -threaded -rtsopts -with-rtsopts=-N -W -Wall -fwarn-incomplete-patterns -fwarn-unused-imports
+  if os(darwin)
+    cpp-options:                  -DOS_MACOS
+  if os(linux)
+    cpp-options:                  -DOS_LINUX
+  if os(windows)
+    cpp-options:                  -DOS_WINDOWS
   hs-source-dirs:                 doctest
   main-is:                        Main.hs
   build-depends:                  Glob
@@ -86,6 +105,12 @@ test-suite pansite-spec
   type:                           exitcode-stdio-1.0
   default-language:               Haskell2010
   ghc-options:                    -threaded -rtsopts -with-rtsopts=-N -W -Wall -fwarn-incomplete-patterns -fwarn-unused-imports
+  if os(darwin)
+    cpp-options:                  -DOS_MACOS
+  if os(linux)
+    cpp-options:                  -DOS_LINUX
+  if os(windows)
+    cpp-options:                  -DOS_WINDOWS
   hs-source-dirs:                 spec
   main-is:                        Spec.hs
   build-depends:                  base >= 4.7 && < 5

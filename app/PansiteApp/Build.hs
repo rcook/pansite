@@ -18,12 +18,13 @@ import           Data.String.Utils
 import           Development.Shake
 import           Pansite
 import           PansiteApp.ConfigInfo
+import           PansiteApp.FileSystem
 import           PansiteApp.Util
-import           System.Directory
 
-data WildcardError = WildcardError FilePath deriving Show
+data WildcardError = WildcardError String deriving Show
 instance Exception WildcardError
 
+-- TODO: Enforce the single token via the types!
 replaceZeroOrOneMarker :: String -> String -> String -> Either String String
 replaceZeroOrOneMarker old new str
     | let n = countOccurrences str old in n == 0 || n == 1 = Right $ replace old new str
@@ -37,27 +38,6 @@ gnuMakeWildcardToken = "%"
 
 shakeWildcardToken :: String
 shakeWildcardToken = "*"
-
--- | Find stem of path and rule
---
--- Examples:
---
--- >>> stemPaths "C:\\aaa\\bbb\\stem.txt" "C:/aaa/bbb/%.txt"
--- "stem"
--- >>> stemPaths "C:/aaa/bbb/stem.txt" "C:\\aaa\\bbb\\%.txt"
--- "stem"
-stemPaths :: FilePath -> String -> IO String
-stemPaths path rule = do
-    path' <- canonicalizePath path
-    rule' <- canonicalizePath rule
-
-    let (stem, token) = stems path' rule'
-    when (token /= gnuMakeWildcardToken && length token > 0) $ do
-        putStrLn $ "path=" ++ path
-        putStrLn $ "rule=" ++ rule
-        throwIO $ WildcardError ("Bad wildcard token: " ++ token)
-
-    return stem
 
 build :: ConfigInfo -> FilePath -> IO ()
 build (ConfigInfo AppPaths{..} _ (App _ targets)) targetPath =
@@ -75,7 +55,9 @@ build (ConfigInfo AppPaths{..} _ (App _ targets)) targetPath =
 
             shakePathPattern %> \outputPath -> do
                 (inputPaths, dependencyPaths) <- liftIO $ do
-                    stem <- stemPaths outputPath pathRule
+                    stem <- case stemPaths gnuMakeWildcardToken outputPath pathRule of
+                        Left message -> throwIO $ WildcardError message
+                        Right s -> return s
 
                     inputPaths <- case replaceZeroOrOneMarkerMulti gnuMakeWildcardToken stem inputPathRules of
                         Left message -> throwIO $ WildcardError message
