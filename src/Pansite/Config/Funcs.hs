@@ -104,12 +104,12 @@ targetParser ctx@(ParserContext resolveFilePath) toolConfigMap =
                         Just p -> return p
         toolConfig <- toolConfigUpdater ctx toolConfigOrig =<< o .:? "tool-settings" .!= emptyObject
 
-        inputPathsRaw <- ((map resolveFilePath) <$> o .: "inputs")
+        inputPathsRaw <- (map resolveFilePath) <$> o .: "inputs"
         inputPaths <- case mapM pathPattern inputPathsRaw of
                         Left message -> fail message
                         Right ps -> return ps
 
-        dependencyPathsRaw <-  ((map resolveFilePath) <$> o .: "dependencies")
+        dependencyPathsRaw <- (map resolveFilePath) <$> o .: "dependencies"
         dependencyPaths <- case mapM pathPattern dependencyPathsRaw of
                         Left message -> fail message
                         Right ps -> return ps
