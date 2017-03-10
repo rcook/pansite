@@ -89,14 +89,17 @@ routeParser (ParserContext resolveFilePath) =
         <$> splitRoutePath <$> o .: "path"
         <*> (resolveFilePath <$> o .: "target")
 
+pathPatternParser :: FilePathResolver -> String -> Parser PathPattern
+pathPatternParser resolveFilePath s = case pathPattern (resolveFilePath s) of
+            Left message -> fail message
+            Right p -> return p
+
 targetParser :: ParserContext -> ToolConfigMap -> Value -> Parser Target
 targetParser ctx@(ParserContext resolveFilePath) toolConfigMap =
     withObject "target" $ \o -> do
+        let pathPatternParser' = pathPatternParser resolveFilePath
 
-        pathRaw <- resolveFilePath <$> o .: "path"
-        path <- case pathPattern pathRaw of
-                        Left message -> fail message
-                        Right p -> return p
+        path <- pathPatternParser' =<< (o .: "path")
 
         key <- o .: "tool"
         toolConfigOrig <- case HashMap.lookup key toolConfigMap of
@@ -104,15 +107,9 @@ targetParser ctx@(ParserContext resolveFilePath) toolConfigMap =
                         Just p -> return p
         toolConfig <- toolConfigUpdater ctx toolConfigOrig =<< o .:? "tool-settings" .!= emptyObject
 
-        inputPathsRaw <- (map resolveFilePath) <$> o .: "inputs"
-        inputPaths <- case mapM pathPattern inputPathsRaw of
-                        Left message -> fail message
-                        Right ps -> return ps
+        inputPaths <- mapM pathPatternParser' =<< (o .: "inputs")
 
-        dependencyPathsRaw <- (map resolveFilePath) <$> o .: "dependencies"
-        dependencyPaths <- case mapM pathPattern dependencyPathsRaw of
-                        Left message -> fail message
-                        Right ps -> return ps
+        dependencyPaths <- mapM pathPatternParser' =<< (o .: "dependencies")
 
         return $ Target path toolConfig inputPaths dependencyPaths
 
