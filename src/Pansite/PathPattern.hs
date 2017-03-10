@@ -49,6 +49,13 @@ pathPattern s
     | let n = countOccurrences s makeToken in n == 0 || n == 1 = Right $ PathPattern s
     | otherwise = Left $ "Invalid path pattern " ++ s
 
+-- | Substitute stem in path pattern
+--
+-- Examples:
+--
+-- >>> Right p = pathPattern "/aaa/bbb/%/ddd/eee/"
+-- >>> substituteStem "ccc" p
+-- "/aaa/bbb/ccc/ddd/eee/"
 substituteStem :: String -> PathPattern -> FilePath
 substituteStem stem (PathPattern s) = replace makeToken stem s
 
