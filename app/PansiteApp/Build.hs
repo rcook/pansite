@@ -38,9 +38,14 @@ gnuMakeWildcardToken = "%"
 shakeWildcardToken :: String
 shakeWildcardToken = "*"
 
--- Must call canonicalizePath on Windows to handle slash differences etc.
--- Consider writing some tests for this
--- TODO: Ensure that strings have correct format at parse time
+-- | Find stem of path and rule
+--
+-- Examples:
+--
+-- >>> stemPaths "C:\\aaa\\bbb\\stem.txt" "C:/aaa/bbb/%.txt"
+-- "stem"
+-- >>> stemPaths "C:/aaa/bbb/stem.txt" "C:\\aaa\\bbb\\%.txt"
+-- "stem"
 stemPaths :: FilePath -> String -> IO String
 stemPaths path rule = do
     path' <- canonicalizePath path
