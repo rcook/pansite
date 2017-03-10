@@ -31,6 +31,19 @@ makeToken = "%"
 shakeToken :: String
 shakeToken = "*"
 
+-- | Convert string to path pattern
+--
+-- Examples:
+--
+-- >>> import Data.Either
+-- >>> isRight $ pathPattern "%"
+-- True
+-- >>> isRight $ pathPattern "aaa"
+-- True
+-- >>> isLeft $ pathPattern "%%"
+-- True
+-- >>> isLeft $ pathPattern "%aaa%"
+-- True
 pathPattern :: String -> Either String PathPattern
 pathPattern s
     | let n = countOccurrences s makeToken in n == 0 || n == 1 = Right $ PathPattern s
