@@ -31,10 +31,14 @@ library
   other-modules:                  Pansite.Config
                                 , Pansite.Config.Funcs
                                 , Pansite.Config.Types
-  build-depends:                  aeson
+                                , Pansite.PathPattern
+                                , Pansite.Util
+  build-depends:                  MissingH
+                                , aeson
                                 , base >= 4.7 && < 5
                                 , bytestring
                                 , data-default
+                                , shake
                                 , split
                                 , text
                                 , unordered-containers
@@ -57,7 +61,6 @@ executable pansite-app
                                 , PansiteApp.CommandLine
                                 , PansiteApp.ConfigInfo
                                 , PansiteApp.CopyTool
-                                , PansiteApp.FileSystem
                                 , PansiteApp.PandocTool
                                 , PansiteApp.Util
                                 , PansiteApp.VersionInfo

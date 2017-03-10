@@ -10,6 +10,10 @@ Portability : portable
 
 module Pansite
     ( module Pansite.Config
+    , module Pansite.PathPattern
+    , module Pansite.Util
     ) where
 
 import           Pansite.Config
+import           Pansite.PathPattern
+import           Pansite.Util

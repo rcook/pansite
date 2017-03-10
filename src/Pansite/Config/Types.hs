@@ -25,6 +25,7 @@ module Pansite.Config.Types
 
 import           Data.Default
 import           Data.Yaml
+import           Pansite.PathPattern
 
 type FilePathResolver = FilePath -> FilePath
 
@@ -49,6 +50,6 @@ data App = App [Route] [Target]
 
 data Route = Route [String] FilePath
 
-data Target = Target FilePath ToolConfig [FilePath] [FilePath]
+data Target = Target PathPattern ToolConfig [PathPattern] [PathPattern]
 
 data ToolConfig = forall a. ToolConfig (ToolConfigUpdater a) (ToolConfigRunner a) a

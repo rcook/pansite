@@ -29,6 +29,7 @@ import           Data.Traversable
 import qualified Data.Vector as Vector
 import           Data.Yaml
 import           Pansite.Config.Types
+import           Pansite.PathPattern
 
 type ToolConfigMap = HashMap String ToolConfig
 
@@ -91,14 +92,28 @@ routeParser (ParserContext resolveFilePath) =
 targetParser :: ParserContext -> ToolConfigMap -> Value -> Parser Target
 targetParser ctx@(ParserContext resolveFilePath) toolConfigMap =
     withObject "target" $ \o -> do
-        path <- resolveFilePath <$> o .: "path"
+
+        pathRaw <- resolveFilePath <$> o .: "path"
+        path <- case pathPattern pathRaw of
+                        Left message -> fail message
+                        Right p -> return p
+
         key <- o .: "tool"
         toolConfigOrig <- case HashMap.lookup key toolConfigMap of
                         Nothing -> fail $ "Unsupported tool " ++ key
                         Just p -> return p
         toolConfig <- toolConfigUpdater ctx toolConfigOrig =<< o .:? "tool-settings" .!= emptyObject
-        inputPaths <- ((map resolveFilePath) <$> o .: "inputs")
-        dependencyPaths <-  ((map resolveFilePath) <$> o .: "dependencies")
+
+        inputPathsRaw <- ((map resolveFilePath) <$> o .: "inputs")
+        inputPaths <- case mapM pathPattern inputPathsRaw of
+                        Left message -> fail message
+                        Right ps -> return ps
+
+        dependencyPathsRaw <-  ((map resolveFilePath) <$> o .: "dependencies")
+        dependencyPaths <- case mapM pathPattern dependencyPathsRaw of
+                        Left message -> fail message
+                        Right ps -> return ps
+
         return $ Target path toolConfig inputPaths dependencyPaths
 
 parseExceptionMessage :: FilePath -> ParseException -> String
@@ -132,5 +147,5 @@ readApp ctx toolSpecs appYamlPath = do
                     forM_ routes $ \(Route path target) ->
                         putStrLn $ "Route: " ++ show path ++ " -> " ++ target
                     forM_ targets $ \(Target path _ inputPaths dependencyPaths) -> do
-                        putStrLn $ "Target: " ++ path ++ ", " ++ show inputPaths ++ ", " ++ show dependencyPaths
+                        putStrLn $ "Target: " ++ show path ++ ", " ++ show inputPaths ++ ", " ++ show dependencyPaths
                     return $ Right app

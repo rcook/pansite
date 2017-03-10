@@ -12,32 +12,10 @@ Portability : portable
 
 module PansiteApp.Build (build) where
 
-import           Control.Exception
 import           Control.Monad
-import           Data.String.Utils
 import           Development.Shake
 import           Pansite
 import           PansiteApp.ConfigInfo
-import           PansiteApp.FileSystem
-import           PansiteApp.Util
-
-data WildcardError = WildcardError String deriving Show
-instance Exception WildcardError
-
--- TODO: Enforce the single token via the types!
-replaceZeroOrOneMarker :: String -> String -> String -> Either String String
-replaceZeroOrOneMarker old new str
-    | let n = countOccurrences str old in n == 0 || n == 1 = Right $ replace old new str
-    | otherwise = Left str
-
-replaceZeroOrOneMarkerMulti :: String -> String -> [String] -> Either String [String]
-replaceZeroOrOneMarkerMulti old new = mapM (replaceZeroOrOneMarker old new)
-
-gnuMakeWildcardToken :: String
-gnuMakeWildcardToken = "%"
-
-shakeWildcardToken :: String
-shakeWildcardToken = "*"
 
 build :: ConfigInfo -> FilePath -> IO ()
 build (ConfigInfo AppPaths{..} _ (App _ targets)) targetPath =
@@ -45,33 +23,20 @@ build (ConfigInfo AppPaths{..} _ (App _ targets)) targetPath =
         liftIO $ putStrLn ("want: " ++ targetPath)
         want [targetPath]
 
-        forM_ targets $ \(Target pathRule toolConfig inputPathRules dependencyPathRules) -> do
-            shakePathPattern <- liftIO $ do
-                putStrLn $ "rule: " ++ pathRule
+        forM_ targets $ \(Target pathMakePattern toolConfig inputPathPatterns dependencyPathPatterns) -> do
+            liftIO $ do
+                putStrLn $ "pathMakePattern: " ++ show pathMakePattern
+                putStrLn $ "inputPathPatterns: " ++ show inputPathPatterns
+                putStrLn $ "dependencyPathPatterns: " ++ show dependencyPathPatterns
 
-                case replaceZeroOrOneMarker gnuMakeWildcardToken shakeWildcardToken pathRule of
-                    Right p -> return p
-                    Left message -> throwIO $ WildcardError message
+            pathMakePattern %%>> \outputPath -> do
+                let stem = pathPatternStem pathMakePattern outputPath
+                    inputPaths = map (substituteStem stem) inputPathPatterns
+                    dependencyPaths = map (substituteStem stem) dependencyPathPatterns
 
-            shakePathPattern %> \outputPath -> do
-                (inputPaths, dependencyPaths) <- liftIO $ do
-                    stem <- case stemPaths gnuMakeWildcardToken outputPath pathRule of
-                        Left message -> throwIO $ WildcardError message
-                        Right s -> return s
-
-                    inputPaths <- case replaceZeroOrOneMarkerMulti gnuMakeWildcardToken stem inputPathRules of
-                        Left message -> throwIO $ WildcardError message
-                        Right paths -> return paths
-
-                    dependencyPaths <- case replaceZeroOrOneMarkerMulti gnuMakeWildcardToken stem dependencyPathRules of
-                        Left message -> throwIO $ WildcardError message
-                        Right paths -> return paths
-
+                liftIO $ do
                     putStrLn $ "need: " ++ show inputPaths
                     putStrLn $ "need: " ++ show dependencyPaths
-
-                    return (inputPaths, dependencyPaths)
-
                 need inputPaths
                 need dependencyPaths
 
