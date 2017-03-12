@@ -76,8 +76,8 @@ routeParser (ParserContext resolveFilePath) =
 
 pathPatternParser :: FilePathResolver -> String -> Parser PathPattern
 pathPatternParser resolveFilePath s = case pathPattern (resolveFilePath s) of
-            Left message -> fail message
-            Right p -> return p
+    Left message -> fail message
+    Right p -> return p
 
 targetParser :: ParserContext -> ToolConfigMap -> Value -> Parser Target
 targetParser ctx@(ParserContext resolveFilePath) toolConfigMap =
