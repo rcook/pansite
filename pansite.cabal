@@ -31,6 +31,7 @@ library
   other-modules:                  Pansite.Config
                                 , Pansite.Config.Funcs
                                 , Pansite.Config.Types
+                                , Pansite.Config.Util
                                 , Pansite.PathPattern
                                 , Pansite.Util
   build-depends:                  MissingH
@@ -116,6 +117,8 @@ test-suite pansite-spec
     cpp-options:                  -DOS_WINDOWS
   hs-source-dirs:                 spec
   main-is:                        Spec.hs
-  build-depends:                  base >= 4.7 && < 5
+  other-modules:                  PansiteSpec.Config.UtilSpec
+  build-depends:                  QuickCheck
+                                , base >= 4.7 && < 5
                                 , hspec
                                 , pansite

@@ -11,7 +11,9 @@ Portability : portable
 module Pansite.Config
     ( module Pansite.Config.Funcs
     , module Pansite.Config.Types
+    , module Pansite.Config.Util
     ) where
 
 import           Pansite.Config.Funcs
 import           Pansite.Config.Types
+import           Pansite.Config.Util

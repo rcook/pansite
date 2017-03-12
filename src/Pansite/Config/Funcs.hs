@@ -22,13 +22,13 @@ import qualified Data.ByteString.Char8 as C8
 import           Data.Default
 import           Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HashMap
-import           Data.List.Split
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import           Data.Traversable
 import qualified Data.Vector as Vector
 import           Data.Yaml
 import           Pansite.Config.Types
+import           Pansite.Config.Util
 import           Pansite.PathPattern
 
 type ToolConfigMap = HashMap String ToolConfig
@@ -47,21 +47,6 @@ toolConfigRunner ctx (ToolConfig _ r a) = r ctx a
 arrayParser :: Object -> Text -> (Value -> Parser a) -> Parser [a]
 arrayParser o key parser = helper (Text.unpack key) parser =<< (o .: key)
     where helper expected f = withArray expected $ \arr -> mapM f (Vector.toList arr)
-
--- | Split route path into fragments
---
--- Examples:
---
--- >>> splitRoutePath "aaa/bbb"
--- ["aaa","bbb"]
--- >>> splitRoutePath "aaa"
--- ["aaa"]
--- >>> splitRoutePath ""
--- []
-splitRoutePath :: String -> [String]
-splitRoutePath path = case splitOn "/" path of
-    [""] -> []
-    fragments -> fragments
 
 appParser :: ParserContext -> [ToolSpec] -> Value -> Parser App
 appParser ctx toolSpecs = withObject "App" $ \o -> do
