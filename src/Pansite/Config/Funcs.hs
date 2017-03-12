@@ -84,7 +84,7 @@ targetParser ctx@(ParserContext resolveFilePath) toolConfigMap =
     withObject "target" $ \o -> do
         let pathPatternParser' = pathPatternParser resolveFilePath
 
-        path <- pathPatternParser' =<< (o .: "path")
+        path <- pathPatternParser' =<< o .: "path"
 
         key <- o .: "tool"
         toolConfigOrig <- case HashMap.lookup key toolConfigMap of
@@ -92,9 +92,9 @@ targetParser ctx@(ParserContext resolveFilePath) toolConfigMap =
                         Just p -> return p
         toolConfig <- toolConfigUpdater ctx toolConfigOrig =<< o .:? "tool-settings" .!= emptyObject
 
-        inputPaths <- mapM pathPatternParser' =<< (o .: "inputs")
+        inputPaths <- mapM pathPatternParser' =<< o .: "inputs"
 
-        dependencyPaths <- mapM pathPatternParser' =<< (o .: "dependencies")
+        dependencyPaths <- mapM pathPatternParser' =<< o .: "dependencies"
 
         return $ Target path toolConfig inputPaths dependencyPaths
 
