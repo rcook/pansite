@@ -8,9 +8,6 @@ Stability   : experimental
 Portability : portable
 -}
 
-{-# LANGUAGE ExistentialQuantification #-}
-{-# LANGUAGE OverloadedStrings #-}
-
 module Pansite.Config.Util
     ( splitRoutePath
     ) where
