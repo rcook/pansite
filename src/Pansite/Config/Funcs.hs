@@ -45,7 +45,7 @@ toolConfigRunner :: ToolContext -> ToolConfig -> IO ()
 toolConfigRunner ctx (ToolConfig _ r a) = r ctx a
 
 arrayParser :: Object -> Text -> (Value -> Parser a) -> Parser [a]
-arrayParser o key parser = helper (Text.unpack key) parser =<< (o .: key)
+arrayParser o key parser = helper (Text.unpack key) parser =<< o .: key
     where helper expected f = withArray expected $ \arr -> mapM f (Vector.toList arr)
 
 appParser :: ParserContext -> [ToolSpec] -> Value -> Parser App
