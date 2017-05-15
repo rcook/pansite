@@ -23,7 +23,7 @@ build (ConfigInfo AppPaths{..} _ (App _ targets)) targetPath =
         liftIO $ putStrLn ("want: " ++ targetPath)
         want [targetPath]
 
-        forM_ targets $ \(Target pathMakePattern toolConfig inputPathPatterns dependencyPathPatterns) -> do
+        forM_ targets $ \(Target pathMakePattern tool inputPathPatterns dependencyPathPatterns) -> do
             liftIO $ do
                 putStrLn $ "pathMakePattern: " ++ show pathMakePattern
                 putStrLn $ "inputPathPatterns: " ++ show inputPathPatterns
@@ -40,5 +40,5 @@ build (ConfigInfo AppPaths{..} _ (App _ targets)) targetPath =
                 need inputPaths
                 need dependencyPaths
 
-                let ctx = ToolContext outputPath inputPaths dependencyPaths
-                liftIO $ toolConfigRunner ctx toolConfig
+                let ctx = RunContext outputPath inputPaths dependencyPaths
+                liftIO $ runTool ctx tool

@@ -51,7 +51,7 @@ emptyConfigInfo appPaths timestamp = ConfigInfo appPaths timestamp(App [] [])
 
 readConfigInfo :: AppPaths -> IO ConfigInfo
 readConfigInfo appPaths@AppPaths{..} = do
-    let ctx = ParserContext (resolveFilePath appPaths)
+    let ctx = UpdateContext (resolveFilePath appPaths)
 
     -- TODO: Use UTCTime field to determine if shakeVersion should be incremented
     currentTime <- getCurrentTime
@@ -61,7 +61,7 @@ readConfigInfo appPaths@AppPaths{..} = do
         then do
             putStrLn $ "Getting timestamp for configuration file " ++ apAppYamlPath
             t <- getModificationTime apAppYamlPath
-            mbApp <- readApp ctx [copyToolSpec, pandocToolSpec] apAppYamlPath
+            mbApp <- readApp ctx [copyTool, pandocTool] apAppYamlPath
             case mbApp of
                 Left message -> do
                     putStrLn $ "Could not parse configuration file at " ++ apAppYamlPath ++ ": " ++ message

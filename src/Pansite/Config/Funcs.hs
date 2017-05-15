@@ -13,7 +13,7 @@ Portability : portable
 
 module Pansite.Config.Funcs
     ( readApp
-    , toolConfigRunner
+    , runTool
     ) where
 
 import           Control.Monad
@@ -30,40 +30,40 @@ import           Pansite.Config.Types
 import           Pansite.Config.Util
 import           Pansite.PathPattern
 
-type ToolConfigMap = HashMap String ToolConfig
+type ToolMap = HashMap String Tool
 
-toolConfigUpdater :: ParserContext -> ToolConfig -> Value -> Parser ToolConfig
-toolConfigUpdater ctx (ToolConfig _ u _) value = u ctx value
+updateTool :: UpdateContext -> Tool -> Value -> Parser Tool
+updateTool ctx (Tool _ u _) value = u ctx value
 
-toolConfigRunner :: ToolContext -> ToolConfig -> IO ()
-toolConfigRunner ctx (ToolConfig _ _ r) = r ctx
+updateTools :: UpdateContext -> ToolMap -> [(String, Value)] -> Parser ToolMap
+updateTools ctx = foldM (\m (key, value) -> case HashMap.lookup key m of
+                                    Nothing -> fail $ "Unsupported tool " ++ key
+                                    Just toolConfigOrig -> do
+                                        toolConfig <- updateTool ctx toolConfigOrig value
+                                        return $ HashMap.insert key toolConfig m)
+
+runTool :: RunContext -> Tool -> IO ()
+runTool ctx (Tool _ _ r) = r ctx
 
 arrayParser :: Object -> Text -> (Value -> Parser a) -> Parser [a]
 arrayParser o key parser = helper (Text.unpack key) parser =<< o .: key
     where helper expected f = withArray expected $ \arr -> mapM f (Vector.toList arr)
 
-appParser :: ParserContext -> [ToolConfig] -> Value -> Parser App
-appParser ctx toolSpecs = withObject "App" $ \o -> do
-    let toolConfigMapOrig = HashMap.fromList (map (\t@(ToolConfig k _ _) -> (k, t)) toolSpecs)
-    toolConfigPairs <- toolConfigsParser =<< o .:? "tool-settings" .!= emptyObject
-    toolConfigMap <- updateToolConfigs ctx toolConfigMapOrig toolConfigPairs
+appParser :: UpdateContext -> [Tool] -> Value -> Parser App
+appParser ctx tools = withObject "App" $ \o -> do
+    let toolMapOrig = HashMap.fromList (map (\t@(Tool k _ _) -> (k, t)) tools)
+    toolSettings <- toolSettingsParser =<< o .:? "tool-settings" .!= emptyObject
+    toolMapNew <- updateTools ctx toolMapOrig toolSettings
     routes <- arrayParser o "routes" (routeParser ctx)
-    targets <- arrayParser o "targets" (targetParser ctx toolConfigMap)
+    targets <- arrayParser o "targets" (targetParser ctx toolMapNew)
     return $ App routes targets
 
-toolConfigsParser :: Value -> Parser [(String, Value)]
-toolConfigsParser = withObject "tool-settings" $ \o ->
+toolSettingsParser :: Value -> Parser [(String, Value)]
+toolSettingsParser = withObject "tool-settings" $ \o ->
     for (HashMap.toList o) $ \(name, value) -> return (Text.unpack name, value)
 
-updateToolConfigs :: ParserContext -> ToolConfigMap -> [(String, Value)] -> Parser ToolConfigMap
-updateToolConfigs ctx = foldM (\m (key, value) -> case HashMap.lookup key m of
-                                    Nothing -> fail $ "Unsupported tool " ++ key
-                                    Just toolConfigOrig -> do
-                                        toolConfig <- toolConfigUpdater ctx toolConfigOrig value
-                                        return $ HashMap.insert key toolConfig m)
-
-routeParser :: ParserContext -> Value -> Parser Route
-routeParser (ParserContext resolveFilePath) =
+routeParser :: UpdateContext -> Value -> Parser Route
+routeParser (UpdateContext resolveFilePath) =
     withObject "route" $ \o -> Route
         <$> splitRoutePath <$> o .: "path"
         <*> (resolveFilePath <$> o .: "target")
@@ -73,18 +73,18 @@ pathPatternParser resolveFilePath s = case pathPattern (resolveFilePath s) of
     Left message -> fail message
     Right p -> return p
 
-targetParser :: ParserContext -> ToolConfigMap -> Value -> Parser Target
-targetParser ctx@(ParserContext resolveFilePath) toolConfigMap =
+targetParser :: UpdateContext -> ToolMap -> Value -> Parser Target
+targetParser ctx@(UpdateContext resolveFilePath) toolMap =
     withObject "target" $ \o -> do
         let pathPatternParser' = pathPatternParser resolveFilePath
 
         path <- pathPatternParser' =<< o .: "path"
 
         key <- o .: "tool"
-        toolConfigOrig <- case HashMap.lookup key toolConfigMap of
+        toolConfigOrig <- case HashMap.lookup key toolMap of
                         Nothing -> fail $ "Unsupported tool " ++ key
                         Just p -> return p
-        toolConfig <- toolConfigUpdater ctx toolConfigOrig =<< o .:? "tool-settings" .!= emptyObject
+        toolConfig <- updateTool ctx toolConfigOrig =<< o .:? "tool-settings" .!= emptyObject
 
         inputPaths <- mapM pathPatternParser' =<< o .: "inputs"
 
@@ -107,15 +107,15 @@ resultErrorMessage appYamlPath problem =
     "Invalid configuration: " ++ problem ++ "\n" ++
     "Location: " ++ appYamlPath
 
-readApp :: ParserContext -> [ToolConfig] -> FilePath -> IO (Either String App)
-readApp ctx toolSpecs appYamlPath = do
+readApp :: UpdateContext -> [Tool] -> FilePath -> IO (Either String App)
+readApp ctx tools appYamlPath = do
     yaml <- C8.readFile appYamlPath
     case decodeEither' yaml of
         Left e -> do
             putStrLn $ "WARNING: " ++ parseExceptionMessage appYamlPath e
             return $ Left (show e)
         Right value -> do
-            case parse (appParser ctx toolSpecs) value of
+            case parse (appParser ctx tools) value of
                 Error problem -> do
                     putStrLn $ "WARNING: " ++ resultErrorMessage appYamlPath problem
                     return $ Left problem

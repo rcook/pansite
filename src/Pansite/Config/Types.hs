@@ -11,11 +11,11 @@ Portability : portable
 module Pansite.Config.Types
     ( App (..)
     , FilePathResolver
-    , ParserContext (..)
     , Route (..)
+    , RunContext (..)
     , Target (..)
-    , ToolConfig (..)
-    , ToolContext (..)
+    , Tool (..)
+    , UpdateContext (..)
     ) where
 
 import           Data.Yaml
@@ -23,21 +23,21 @@ import           Pansite.PathPattern
 
 type FilePathResolver = FilePath -> FilePath
 
-data ParserContext = ParserContext
+data UpdateContext = UpdateContext
     FilePathResolver        -- file path resolver
 
-data ToolContext = ToolContext
+data RunContext = RunContext
     FilePath                -- output path
     [FilePath]              -- input paths
     [FilePath]              -- dependency paths
 
-data ToolConfig = ToolConfig
-    String                                          -- key
-    (ParserContext -> Value -> Parser ToolConfig)   -- updater function
-    (ToolContext -> IO ())                          -- runner function
+data Tool = Tool
+    String                                  -- key
+    (UpdateContext -> Value -> Parser Tool) -- update function
+    (RunContext -> IO ())                   -- run function
 
 data App = App [Route] [Target]
 
 data Route = Route [String] FilePath
 
-data Target = Target PathPattern ToolConfig [PathPattern] [PathPattern]
+data Target = Target PathPattern Tool [PathPattern] [PathPattern]

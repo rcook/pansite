@@ -10,18 +10,16 @@ Portability : portable
 
 {-# LANGUAGE OverloadedStrings #-}
 
-module PansiteApp.CopyTool (copyToolSpec) where
+module PansiteApp.CopyTool (copyTool) where
 
 import           Data.Aeson
 import           Pansite
 
 data CopySettings = CopySettings
 
-copyToolSpec :: ToolConfig
-copyToolSpec = mkToolConfig CopySettings
+copyTool :: Tool
+copyTool = mkTool CopySettings
 
-mkToolConfig :: CopySettings -> ToolConfig
-mkToolConfig state = ToolConfig "copy" updater runner
-    where
-        updater _ value = mkToolConfig <$> (withObject "copy" $ const (pure state)) value
-        runner _ = error "Not implemented"
+mkTool :: CopySettings -> Tool
+mkTool state = Tool "copy" updater (error "Not implemented")
+    where updater _ value = mkTool <$> (withObject "copy" $ const (pure state)) value

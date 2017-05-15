@@ -11,7 +11,7 @@ Portability : portable
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module PansiteApp.PandocTool (pandocToolSpec) where
+module PansiteApp.PandocTool (pandocTool) where
 
 import           Data.Aeson
 import           Data.Aeson.Types
@@ -41,8 +41,8 @@ data PandocSettings = PandocSettings
 instance Default PandocSettings where
     def = PandocSettings False [] Nothing False Nothing False Nothing Nothing Nothing
 
-updater :: PandocSettings -> ParserContext -> Value -> Parser PandocSettings
-updater PandocSettings{..} (ParserContext resolveFilePath) =
+updater :: PandocSettings -> UpdateContext -> Value -> Parser PandocSettings
+updater PandocSettings{..} (UpdateContext resolveFilePath) =
     withObject "pandoc" $ \o ->
         let getFilePath key d = fmap (resolveFilePath <$>) (o .:? key .!= d)
         in PandocSettings
@@ -94,10 +94,10 @@ mkWriterOptions PandocSettings{..} = do
         , writerVariables = psVars3
         }
 
-runner :: PandocSettings -> ToolContext -> IO ()
+runner :: PandocSettings -> RunContext -> IO ()
 runner
     ps@PandocSettings{..}
-    (ToolContext outputPath inputPaths _) = do
+    (RunContext outputPath inputPaths _) = do
 
     putStrLn "PandocTool"
     putStrLn $ "  outputPath=" ++ outputPath
@@ -139,11 +139,9 @@ rewriteLinks :: Inline -> Inline
 rewriteLinks (Link attr is (url, title)) = Link attr is (transformUrl url, title)
 rewriteLinks i = i
 
-pandocToolSpec :: ToolConfig
-pandocToolSpec = mkToolConfig (PandocSettings False [] Nothing False Nothing False Nothing Nothing Nothing)
+pandocTool :: Tool
+pandocTool = mkTool $ PandocSettings False [] Nothing False Nothing False Nothing Nothing Nothing
 
-mkToolConfig :: PandocSettings -> ToolConfig
-mkToolConfig state = ToolConfig "pandoc" updater' runner'
-    where
-        updater' ctx value = mkToolConfig <$> updater state ctx value
-        runner' = runner state
+mkTool :: PandocSettings -> Tool
+mkTool state = Tool "pandoc" updater' (runner state)
+    where updater' ctx value = mkTool <$> updater state ctx value
