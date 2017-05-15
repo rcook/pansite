@@ -41,8 +41,8 @@ data PandocSettings = PandocSettings
 instance Default PandocSettings where
     def = PandocSettings False [] Nothing False Nothing False Nothing Nothing Nothing
 
-updater :: ParserContext -> PandocSettings -> Value -> Parser PandocSettings
-updater (ParserContext resolveFilePath) PandocSettings{..} =
+updater :: PandocSettings -> ParserContext -> Value -> Parser PandocSettings
+updater PandocSettings{..} (ParserContext resolveFilePath) =
     withObject "pandoc" $ \o ->
         let getFilePath key d = fmap (resolveFilePath <$>) (o .:? key .!= d)
         in PandocSettings
@@ -94,10 +94,10 @@ mkWriterOptions PandocSettings{..} = do
         , writerVariables = psVars3
         }
 
-runner :: ToolContext -> PandocSettings -> IO ()
+runner :: PandocSettings -> ToolContext -> IO ()
 runner
-    (ToolContext outputPath inputPaths _)
-    ps@PandocSettings{..} = do
+    ps@PandocSettings{..}
+    (ToolContext outputPath inputPaths _) = do
 
     putStrLn "PandocTool"
     putStrLn $ "  outputPath=" ++ outputPath
@@ -139,5 +139,11 @@ rewriteLinks :: Inline -> Inline
 rewriteLinks (Link attr is (url, title)) = Link attr is (transformUrl url, title)
 rewriteLinks i = i
 
-pandocToolSpec :: ToolSpec
-pandocToolSpec = ToolSpec "pandoc" updater runner
+pandocToolSpec :: ToolConfig
+pandocToolSpec = mkToolConfig (PandocSettings False [] Nothing False Nothing False Nothing Nothing Nothing)
+
+mkToolConfig :: PandocSettings -> ToolConfig
+mkToolConfig state = ToolConfig "pandoc" updater' runner'
+    where
+        updater' ctx value = mkToolConfig <$> updater state ctx value
+        runner' = runner state

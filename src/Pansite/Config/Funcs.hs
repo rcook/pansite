@@ -19,7 +19,6 @@ module Pansite.Config.Funcs
 import           Control.Monad
 import           Data.Aeson.Types
 import qualified Data.ByteString.Char8 as C8
-import           Data.Default
 import           Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HashMap
 import           Data.Text (Text)
@@ -33,24 +32,19 @@ import           Pansite.PathPattern
 
 type ToolConfigMap = HashMap String ToolConfig
 
-defaultToolConfig :: ToolSpec -> ToolConfig
-defaultToolConfig (ToolSpec _ u r) = ToolConfig u r def
-
 toolConfigUpdater :: ParserContext -> ToolConfig -> Value -> Parser ToolConfig
-toolConfigUpdater ctx (ToolConfig u r a) value = do
-    result <- u ctx a value
-    return $ ToolConfig u r result
+toolConfigUpdater ctx (ToolConfig _ u _) value = u ctx value
 
 toolConfigRunner :: ToolContext -> ToolConfig -> IO ()
-toolConfigRunner ctx (ToolConfig _ r a) = r ctx a
+toolConfigRunner ctx (ToolConfig _ _ r) = r ctx
 
 arrayParser :: Object -> Text -> (Value -> Parser a) -> Parser [a]
 arrayParser o key parser = helper (Text.unpack key) parser =<< o .: key
     where helper expected f = withArray expected $ \arr -> mapM f (Vector.toList arr)
 
-appParser :: ParserContext -> [ToolSpec] -> Value -> Parser App
+appParser :: ParserContext -> [ToolConfig] -> Value -> Parser App
 appParser ctx toolSpecs = withObject "App" $ \o -> do
-    let toolConfigMapOrig = HashMap.fromList (map (\t@(ToolSpec k _ _) -> (k, defaultToolConfig t)) toolSpecs)
+    let toolConfigMapOrig = HashMap.fromList (map (\t@(ToolConfig k _ _) -> (k, t)) toolSpecs)
     toolConfigPairs <- toolConfigsParser =<< o .:? "tool-settings" .!= emptyObject
     toolConfigMap <- updateToolConfigs ctx toolConfigMapOrig toolConfigPairs
     routes <- arrayParser o "routes" (routeParser ctx)
@@ -113,7 +107,7 @@ resultErrorMessage appYamlPath problem =
     "Invalid configuration: " ++ problem ++ "\n" ++
     "Location: " ++ appYamlPath
 
-readApp :: ParserContext -> [ToolSpec] -> FilePath -> IO (Either String App)
+readApp :: ParserContext -> [ToolConfig] -> FilePath -> IO (Either String App)
 readApp ctx toolSpecs appYamlPath = do
     yaml <- C8.readFile appYamlPath
     case decodeEither' yaml of

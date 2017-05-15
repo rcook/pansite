@@ -13,21 +13,15 @@ Portability : portable
 module PansiteApp.CopyTool (copyToolSpec) where
 
 import           Data.Aeson
-import           Data.Aeson.Types
-import           Data.Default
 import           Pansite
 
 data CopySettings = CopySettings
 
-instance Default CopySettings where
-    def = CopySettings
+copyToolSpec :: ToolConfig
+copyToolSpec = mkToolConfig CopySettings
 
-updater :: ParserContext -> CopySettings -> Value -> Parser CopySettings
-updater _ orig =
-    withObject "copy" $ \_ -> pure orig
-
-runner :: ToolContext -> CopySettings -> IO ()
-runner _ _ = error "Not implemented"
-
-copyToolSpec :: ToolSpec
-copyToolSpec = ToolSpec "copy" updater runner
+mkToolConfig :: CopySettings -> ToolConfig
+mkToolConfig state = ToolConfig "copy" updater runner
+    where
+        updater _ value = mkToolConfig <$> (withObject "copy" $ const (pure state)) value
+        runner _ = error "Not implemented"
