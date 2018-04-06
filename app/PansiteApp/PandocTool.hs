@@ -18,6 +18,8 @@ import           Data.Aeson.Types
 import qualified Data.ByteString.Lazy as BL
 import           Data.Default
 import           Data.List
+import qualified Data.Text as Text (pack)
+import qualified Data.Text.IO as Text (writeFile)
 import           Pansite
 import           PansiteApp.Util
 import           System.FilePath
@@ -31,7 +33,7 @@ data PandocSettings = PandocSettings
     , psVars :: [(String, String)]
     , psTemplatePath :: Maybe FilePath
     , psTableOfContents :: Bool
-    , psReferenceDocx :: Maybe FilePath
+    , psReferenceDoc :: Maybe FilePath
     , psMathJaxEnabled :: Bool
     , psIncludeInHeaderPath :: Maybe FilePath
     , psIncludeBeforeBodyPath :: Maybe FilePath
@@ -50,7 +52,7 @@ updater PandocSettings{..} (UpdateContext resolveFilePath) =
             <*> o .:? "vars" .!= psVars
             <*> getFilePath "template-path" psTemplatePath
             <*> o .:? "table-of-contents" .!= psTableOfContents
-            <*> getFilePath "reference-docx" psReferenceDocx
+            <*> getFilePath "reference-doc" psReferenceDoc
             <*> o .:? "mathjax" .!= psMathJaxEnabled
             <*> getFilePath "include-in-header-path" psIncludeInHeaderPath
             <*> getFilePath "include-before-body-path" psIncludeBeforeBodyPath
@@ -87,7 +89,7 @@ mkWriterOptions PandocSettings{..} = do
 
     return $ def
         { writerNumberSections = psNumberSections
-        , writerReferenceDocx = psReferenceDocx
+        , writerReferenceDoc = psReferenceDoc
         , writerTemplate = mbTemplate
         , writerTableOfContents = psTableOfContents
         , writerHTMLMathMethod = htmlMathMethod
@@ -103,14 +105,15 @@ runner
     putStrLn $ "  outputPath=" ++ outputPath
     putStrLn $ "  inputPaths=" ++ show inputPaths
     putStrLn $ "  psNumberSections=" ++ show psNumberSections
-    putStrLn $ "  psReferenceDocx=" ++ show psReferenceDocx
+    putStrLn $ "  psReferenceDoc=" ++ show psReferenceDoc
     putStrLn $ "  psTableOfContents=" ++ show psTableOfContents
     putStrLn $ "  psTemplatePath=" ++ show psTemplatePath
     putStrLn $ "  psVars=" ++ show psVars
 
     md <- (intercalate "\n\n") <$> sequence (map readFileUtf8 inputPaths)
 
-    let Right doc' = readMarkdown def md -- TODO: Irrefutable pattern
+    let mdText = Text.pack md
+        Right doc' = runPure $ readMarkdown def mdText -- TODO: Irrefutable pattern
         doc = walk rewriteLinks doc'
 
     writerOpts <- mkWriterOptions ps
@@ -118,11 +121,12 @@ runner
     -- TODO: Ugh. Let's make this less hacky. It works for now though.
     case (takeExtension outputPath) of
         ".docx" -> do
-                        docx <- writeDocx writerOpts doc
+                        let Right docx = runPure $ writeDocx writerOpts doc -- TODO: Irrefutable pattern
                         BL.writeFile outputPath docx
         _ -> do
-                        let html = toEntities (renderHtml (writeHtml writerOpts doc))
-                        writeFileUtf8 outputPath html
+                        let Right html = runPure $ writeHtml5 writerOpts doc -- TODO: Irrefutable pattern
+                            t = toEntities (Text.pack $ renderHtml html)
+                        Text.writeFile outputPath t
 
 -- TODO: This is very application-specific
 -- TODO: Figure out how to allow this behaviour to be specified in app configuration

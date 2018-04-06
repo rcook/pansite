@@ -14,6 +14,7 @@ module PansiteApp.CommandLine
     , parseCommand
     ) where
 
+import           Data.Monoid ((<>))
 import           Options.Applicative
 import           PansiteApp.VersionInfo
 
