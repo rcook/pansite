@@ -1,7 +1,7 @@
 name:                             pansite
 version:                          0.2.0.0
 synopsis:                         Pansite: a simple web site management tool
-description:                      Please see README.md
+description:                      Pansite is a Pandoc-based web site management tool. Please see README.md
 homepage:                         https://github.com/rcook/pansite#readme
 license:                          MIT
 license-file:                     LICENSE
