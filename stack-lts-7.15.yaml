@@ -1,9 +1,0 @@
-resolver: lts-7.15
-packages:
-- .
-extra-deps:
-- doctemplates-0.1.0.2
-- pandoc-1.19.1
-- pandoc-types-1.17.0.5
-- texmath-0.9
-- vcs-revision-0.0.2
