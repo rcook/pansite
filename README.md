@@ -96,7 +96,7 @@ Run the example site:
 
 ```bash
 cd _app/
-stack exec -- pansite-app --port 3000
+stack exec -- pansite --port 3000
 ```
 
 In your web browser, navigate to a route defined in `.pansite.yaml`, e.g. `http://localhost:3000/page2`.
@@ -104,10 +104,10 @@ In your web browser, navigate to a route defined in `.pansite.yaml`, e.g. `http:
 ## Command-line options
 
 ```terminal
-$ stack exec -- pansite-app --help
+$ stack exec -- pansite --help
 Pansite development server 0.1.0.0.772a2d5 (locally modified)
 
-Usage: pansite-app ([-p|--port PORT] [-c|--config CONFIG]
+Usage: pansite ([-p|--port PORT] [-c|--config CONFIG]
                    [-o|--output-dir OUTPUTDIR] | [-v|--version])
   Run Pansite development server
 
