@@ -25,10 +25,13 @@ import           PansiteApp.Util
 import           System.FilePath
 import           Text.Blaze.Html.Renderer.String
 import           Text.Pandoc
-                    ( HTMLMathMethod(..)
+                    ( Extension(..)
+                    , HTMLMathMethod(..)
                     , Inline(..)
                     , WriterOptions(..)
+                    , enableExtension
                     , readMarkdown
+                    , readerExtensions
                     , runPure
                     , writeDocx
                     , writeHtml5
@@ -121,7 +124,13 @@ runner
     md <- (intercalate "\n\n") <$> sequence (map readFileUtf8 inputPaths)
 
     let mdText = Text.pack md
-        Right doc' = runPure $ readMarkdown def mdText -- TODO: Irrefutable pattern
+        readerOpts = def
+        exts = foldl'
+                (flip enableExtension)
+                (readerExtensions readerOpts)
+                [Ext_backtick_code_blocks, Ext_yaml_metadata_block]
+        readerOpts' = readerOpts { readerExtensions = exts }
+        Right doc' = runPure $ readMarkdown readerOpts' mdText -- TODO: Irrefutable pattern
         doc = walk rewriteLinks doc'
 
     writerOpts <- mkWriterOptions ps
