@@ -1,5 +1,9 @@
 # Pansite: a simple web site management tool
 
+[![Travis branch](https://img.shields.io/travis/rcook/pansite/master.svg)](https://travis-ci.org/rcook/pansite)
+[![Hackage](https://img.shields.io/hackage/v/pansite.svg)](http://hackage.haskell.org/package/pansite)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/rcook/pansite/master/LICENSE)
+
 ## Development
 
 This project uses [Stack][stack], [Pandoc][pandoc], [Warp][warp] and [Shake][shake]
