@@ -25,8 +25,16 @@ import           PansiteApp.Util
 import           System.FilePath
 import           Text.Blaze.Html.Renderer.String
 import           Text.Pandoc
-import           Text.Pandoc.Walk
-import           Text.Pandoc.XML
+                    ( HTMLMathMethod(..)
+                    , Inline(..)
+                    , WriterOptions(..)
+                    , readMarkdown
+                    , runPure
+                    , writeDocx
+                    , writeHtml5
+                    )
+import           Text.Pandoc.Walk (walk)
+import           Text.Pandoc.XML (toEntities)
 
 data PandocSettings = PandocSettings
     { psNumberSections :: Bool
