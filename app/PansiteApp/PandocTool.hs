@@ -1,7 +1,7 @@
 {-|
 Module      : PansiteApp.PandocTool
 Description : Pandoc tool
-Copyright   : (C) Richard Cook, 2017
+Copyright   : (C) Richard Cook, 2017-2018
 Licence     : MIT
 Maintainer  : rcook@rcook.org
 Stability   : experimental

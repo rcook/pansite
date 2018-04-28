@@ -2,7 +2,7 @@
 ############################################################
 #
 # upload-docs
-# Copyright (C) 2017, Richard Cook
+# Copyright (C) 2017-2018, Richard Cook
 # Released under MIT License
 # https://github.com/rcook/pansite
 #

@@ -1,7 +1,7 @@
 {-|
 Module      : Pansite.Config.Types
 Description : Functions for Pansite app configuration
-Copyright   : (C) Richard Cook, 2017
+Copyright   : (C) Richard Cook, 2017-2018
 Licence     : MIT
 Maintainer  : rcook@rcook.org
 Stability   : experimental

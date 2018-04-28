@@ -1,7 +1,7 @@
 {-|
 Module      : PansiteApp.App
 Description : Main entrypoint for Pansite application
-Copyright   : (C) Richard Cook, 2017
+Copyright   : (C) Richard Cook, 2017-2018
 Licence     : MIT
 Maintainer  : rcook@rcook.org
 Stability   : experimental

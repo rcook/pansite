@@ -124,7 +124,7 @@ Available options:
 
 Released under [MIT License][licence]
 
-Copyright &copy; 2017 Richard Cook
+Copyright &copy; 2017&mdash;2018 Richard Cook
 
 [app-example]: _app/.pansite.yaml
 [cmd-hackage]: https://hackage.haskell.org/package/shake-0.15.11/docs/Development-Shake-Command.html
